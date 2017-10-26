@@ -11,6 +11,8 @@ from dmi.sst.util.default_data import DefaultData
 class MwOeMMDProcessor:
     _version = "0.0.1"
 
+    KERNEL_SIZE = 4
+
     def run(self, cmd_line_args):
         input_file = cmd_line_args.input_file
 
@@ -60,6 +62,50 @@ class MwOeMMDProcessor:
         # j_ite0
         variable = MwOeMMDProcessor.create_vector_float32_variable(num_matchups)
         dataset["j_ite0"] = variable
+
+        # AK
+        variable = MwOeMMDProcessor.create_2d_float_variable(MwOeMMDProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
+        dataset["AK"] = variable
+
+        # chisq
+        variable = MwOeMMDProcessor.create_vector_float32_variable(num_matchups)
+        dataset["chisq"] = variable
+
+        # tb_rmse
+        variable = MwOeMMDProcessor.create_vector_float32_variable(num_matchups)
+        dataset["tb_rmse"] = variable
+
+        # p
+        variable = MwOeMMDProcessor.create_2d_float_variable(MwOeMMDProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
+        dataset["p"] = variable
+
+        # S
+        variable = MwOeMMDProcessor.create_2d_float_variable(MwOeMMDProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
+        dataset["S"] = variable
+
+        # tb_sim
+        variable = MwOeMMDProcessor.create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
+        dataset["tb_sim"] = variable
+
+        # dtb
+        variable = MwOeMMDProcessor.create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
+        dataset["dtb"] = variable
+
+        # ds
+        variable = MwOeMMDProcessor.create_vector_float32_variable(num_matchups)
+        dataset["ds"] = variable
+
+        # dn
+        variable = MwOeMMDProcessor.create_vector_float32_variable(num_matchups)
+        dataset["dn"] = variable
+
+        # K4
+        variable = MwOeMMDProcessor.create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
+        dataset["K4"] = variable
+
+        # ite_index
+        variable = MwOeMMDProcessor.create_vector_uint8_variable(num_matchups)
+        dataset["ite_index"] = variable
 
         return dataset
 
