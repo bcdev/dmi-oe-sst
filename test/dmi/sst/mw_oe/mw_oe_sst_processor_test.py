@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from dmi.sst.mw_oe.mw_oe_mmd_processor import MwOeMMDProcessor
+from dmi.sst.mw_oe.mw_oe_sst_processor import MwOeSstProcessor
 
 
 class MwOeMMDProcessorTest(unittest.TestCase):
     def test_create_result_structure(self):
-        result = MwOeMMDProcessor.create_result_structure(22, 5, 10)
+        result = MwOeSstProcessor.create_result_structure(22, 5, 10)
         self.assertIsNotNone(result)
 
         j = result.variables["j"]
