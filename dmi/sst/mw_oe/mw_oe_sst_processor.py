@@ -13,8 +13,7 @@ class MwOeSstProcessor:
     def run(self, cmd_line_args):
         input_file = cmd_line_args.input_file
 
-        # xarray can not handle the TAI 1993 time coding @todo 3 tb/th adapt if possible
-        xr.open_dataset(input_file, decode_times=False)
+        
 
     @staticmethod
     def create_result_structure(num_matchups, max_iterations, num_bt):
