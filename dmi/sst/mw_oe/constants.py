@@ -37,8 +37,8 @@ INPUT_VARIABLES = ["amsre.latitude",                        # float, degrees nor
                    "amsre.nwp.cloud_liquid_water",          # float, kg/kg
                    "amsre.nwp.total_column_water_vapour",   # float, kg/m^2
                    "amsre.nwp.total_precip",                # float, m
-                   #"drifter-sst_insitu.time",              # int32, s, seconds since 1978-01-01, fill=-32768
-                   #"drifter-sst_insitu.sea_surface_temperature", # float, Celsius, fill=-32768.0
-                   #"drifter-sst_insitu.sst_qc_flag",       # int16, fill=-32768
-                   #"drifter-sst_insitu.sst_track_flag",    # int16, fill=-32768
+                   "{IS_SENSOR}_insitu.time",               # int32, s, seconds since 1978-01-01, fill=-32768
+                   "{IS_SENSOR}_insitu.sea_surface_temperature", # float, Celsius, fill=-32768.0
+                   "{IS_SENSOR}_insitu.sst_qc_flag",       # int16, fill=-32768
+                   "{IS_SENSOR}_insitu.sst_track_flag",    # int16, fill=-32768
                    ]
