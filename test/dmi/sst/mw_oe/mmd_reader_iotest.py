@@ -1,18 +1,20 @@
 import os
 import unittest
 
-# @todo 2 tb/tb make configurable 2017-10-27
 from dmi.sst.mw_oe.mmd_reader import MmdReader
+from test.dmi.test_data_utils import TestDataUtils
 
-TEST_FILE_PATH = "/usr/local/data/SST-CCI/dmi_oe_TestData/mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273.nc"
+TEST_FILE_NAME = "mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273.nc"
 
 
 class MmdReaderIoTest(unittest.TestCase):
     def test_read(self):
-        self.assertTrue(os.path.isfile(TEST_FILE_PATH))
+        data_dir = TestDataUtils.get_test_data_dir()
+        test_file = os.path.join(data_dir, TEST_FILE_NAME)
+        self.assertTrue(os.path.isfile(test_file))
 
         reader = MmdReader()
-        input_data = reader.read(TEST_FILE_PATH)
+        input_data = reader.read(test_file)
         self.assertIsNotNone(input_data)
 
         self.assertIsNotNone(input_data.variables["amsre.latitude"])

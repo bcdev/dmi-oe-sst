@@ -13,8 +13,6 @@ class MwOeSstProcessor:
     def run(self, cmd_line_args):
         input_file = cmd_line_args.input_file
 
-        
-
     @staticmethod
     def create_result_structure(num_matchups, max_iterations, num_bt):
         dataset = xr.Dataset()
