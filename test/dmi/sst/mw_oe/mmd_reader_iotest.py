@@ -58,14 +58,13 @@ class MmdReaderIoTest(unittest.TestCase):
         self.assertIsNotNone(input_data.variables["amsre.nwp.total_column_water_vapour"])
         self.assertIsNotNone(input_data.variables["amsre.nwp.total_precip"])
 
-        # @todo 1 tb/tb add a mechanism that allows to variably define the sst-insitu source name
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.time"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.lat"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.lon"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.sea_surface_temperature"])
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.insitu_depth"])  @todo 3 tb/tb check if this is ever used 2017-10-27
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.sst_qc_flag"])
-        # self.assertIsNotNone(input_data.variables["drifter-sst_insitu.sst_track_flag"])
+        self.assertIsNotNone(input_data.variables["insitu.time"])   # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.lat"])    # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.lon"])    # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.sea_surface_temperature"])
+        self.assertIsNotNone(input_data.variables["insitu.sst_depth"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.sst_qc_flag"])
+        self.assertIsNotNone(input_data.variables["insitu.sst_track_flag"])
 
         # verify that the following variables are converted to the appropriate target data type:
         self.assertAlmostEqual(55.125, input_data.variables["amsre.satellite_zenith_angle"].data[0, 0, 0], 8)

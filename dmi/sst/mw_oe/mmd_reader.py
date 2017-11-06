@@ -18,8 +18,7 @@ class MmdReader:
             if "{IS_SENSOR}" in variable_name:
                 in_situ_sensor = self._get_insitu_sensor(input_data)
                 variable_name = variable_name.replace("{IS_SENSOR}", in_situ_sensor)
-                # @todo 1 tb/tb continue here - assemble correct variable name 2017-10-30
-                target_variable_name = "bla"
+                target_variable_name = variable_name[len(in_situ_sensor) + 1 : len(variable_name)]
             variable = input_data.variables[variable_name]
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
                 self._scale_data(variable)
