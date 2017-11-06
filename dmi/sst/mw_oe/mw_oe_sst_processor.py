@@ -2,6 +2,7 @@ import numpy as np
 import xarray as xr
 from xarray import Variable
 
+from dmi.sst.mw_oe.mmd_reader import MmdReader
 from dmi.sst.util.default_data import DefaultData
 
 
@@ -12,6 +13,81 @@ class MwOeSstProcessor:
 
     def run(self, cmd_line_args):
         input_file = cmd_line_args.input_file
+
+        mmd_reader = MmdReader()
+        mmd_data = mmd_reader.read(input_file)
+
+        # preprocessing
+        #
+        # mean over 5x5
+        # - amsre.nwp.seaice_fraction
+        #
+        # central pixel only
+        # - amsre.latitude
+        # - amsre.longitude
+        # - amsre.time
+        # - amsre.solar_zenith_angle
+        # - amsre.satellite_zenith_angle
+        # - amsre.nwp.sea_surface_temperature
+        # - amsre.nwp.10m_east_wind_component
+        # - amsre.nwp.10m_north_wind_component
+        # - amsre.nwp.skin_temperature
+        # - amsre.nwp.log_surface_pressure
+        # - amsre.nwp.total_column_water_vapour
+        # - amsre.nwp.total_precip
+        # - amsre.brightness_temperature6V
+        # - amsre.brightness_temperature6H
+        # - amsre.brightness_temperature10V
+        # - amsre.brightness_temperature10H
+        # - amsre.brightness_temperature18V
+        # - amsre.brightness_temperature18H
+        # - amsre.brightness_temperature23V
+        # - amsre.brightness_temperature23H
+        # - amsre.brightness_temperature36V
+        # - amsre.brightness_temperature36H
+        # - amsre.pixel_data_quality6V
+        # - amsre.pixel_data_quality6H
+        # - amsre.pixel_data_quality10V
+        # - amsre.pixel_data_quality10H
+        # - amsre.pixel_data_quality18V
+        # - amsre.pixel_data_quality18H
+        # - amsre.pixel_data_quality23V
+        # - amsre.pixel_data_quality23H
+        # - amsre.pixel_data_quality36V
+        # - amsre.pixel_data_quality36H
+        # - amsre.scan_data_quality
+        # - amsre.Geostationary_Reflection_Latitude
+        # - amsre.Geostationary_Reflection_Longitude
+        # - amsre.satellite_azimuth_angle
+        #
+        # calculate TCLW
+        # pre: log_surface_pressure present
+        # - amsre.nwp.cloud_liquid_water
+        #
+        # strange flag data processing
+        # pre: sea_ice_fraction
+        # - amsre.land_ocean_flag_6
+        #
+        # mean over 5x5 and 11x11 @todo 2tb/tb check if these are really used 2017-11-06
+        # - amsre.brightness_temperature6V
+        # - amsre.brightness_temperature6H
+        # - amsre.brightness_temperature10V
+        # - amsre.brightness_temperature10H
+        # - amsre.brightness_temperature18V
+        # - amsre.brightness_temperature18H
+        # - amsre.brightness_temperature23H
+        # - amsre.brightness_temperature36V
+        # - amsre.brightness_temperature36H
+        #
+        #
+        # nothing
+        # - insitu.time
+        # - insitu.lat
+        # - insitu.lon
+        # - insitu.sea_surface_temperature
+        # - insitu.sst_depth
+        # - insitu.sst_qc_flag
+        # - insitu.sst_track_flag
 
     @staticmethod
     def create_result_structure(num_matchups, max_iterations, num_bt):
