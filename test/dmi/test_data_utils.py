@@ -1,5 +1,8 @@
 import os
+import tempfile
 from configparser import ConfigParser
+
+TEST_FILE_NAME = "mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273.nc"
 
 
 class TestDataUtils:
@@ -18,3 +21,13 @@ class TestDataUtils:
             __TEST_DATA_PATH = parser.get("TestData", "test_data_path")
 
         return __TEST_DATA_PATH
+
+    @staticmethod
+    def get_test_mmd():
+        data_dir = TestDataUtils.get_test_data_dir()
+        test_file = os.path.join(data_dir, TEST_FILE_NAME)
+        return test_file
+
+    @staticmethod
+    def get_output_dir():
+        return tempfile.gettempdir()

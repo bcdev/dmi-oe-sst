@@ -4,17 +4,14 @@ import unittest
 from dmi.sst.mw_oe.mmd_reader import MmdReader
 from test.dmi.test_data_utils import TestDataUtils
 
-TEST_FILE_NAME = "mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273.nc"
-
 
 class MmdReaderIoTest(unittest.TestCase):
     def test_read(self):
-        data_dir = TestDataUtils.get_test_data_dir()
-        test_file = os.path.join(data_dir, TEST_FILE_NAME)
-        self.assertTrue(os.path.isfile(test_file))
+        test_mmd = TestDataUtils.get_test_mmd()
+        self.assertTrue(os.path.isfile(test_mmd))
 
         reader = MmdReader()
-        input_data = reader.read(test_file)
+        input_data = reader.read(test_mmd)
         self.assertIsNotNone(input_data)
 
         self.assertIsNotNone(input_data.variables["amsre.latitude"])
@@ -58,9 +55,9 @@ class MmdReaderIoTest(unittest.TestCase):
         self.assertIsNotNone(input_data.variables["amsre.nwp.total_column_water_vapour"])
         self.assertIsNotNone(input_data.variables["amsre.nwp.total_precip"])
 
-        self.assertIsNotNone(input_data.variables["insitu.time"])   # @todo 3 tb/tb check if this is ever used 2017-10-27
-        self.assertIsNotNone(input_data.variables["insitu.lat"])    # @todo 3 tb/tb check if this is ever used 2017-10-27
-        self.assertIsNotNone(input_data.variables["insitu.lon"])    # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.time"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.lat"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
+        self.assertIsNotNone(input_data.variables["insitu.lon"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
         self.assertIsNotNone(input_data.variables["insitu.sea_surface_temperature"])
         self.assertIsNotNone(input_data.variables["insitu.sst_depth"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
         self.assertIsNotNone(input_data.variables["insitu.sst_qc_flag"])
