@@ -6,6 +6,7 @@ import xarray as xr
 from xarray import Variable
 
 from dmi.sst.mw_oe.mmd_reader import MmdReader
+from dmi.sst.mw_oe.preprocessor import Preprocessor
 from dmi.sst.util.default_data import DefaultData
 
 
@@ -21,6 +22,8 @@ class MwOeSstProcessor:
 
         mmd_reader = MmdReader()
         mmd_data = mmd_reader.read(input_file)
+
+        matchup_count = mmd_data.dims["matchup_count"]
 
         # preprocessing
         #
@@ -83,23 +86,27 @@ class MwOeSstProcessor:
         # - amsre.brightness_temperature23H
         # - amsre.brightness_temperature36V
         # - amsre.brightness_temperature36H
-        #
-        #
-        # nothing
-        # - insitu.time
-        # - insitu.lat
-        # - insitu.lon
-        # - insitu.sea_surface_temperature
-        # - insitu.sst_depth
-        # - insitu.sst_qc_flag
-        # - insitu.sst_track_flag
 
-        results = self._create_result_structure(4, 5, 6)
 
+        preprocessor = Preprocessor()
+        pre_proc_mmd_data = preprocessor.run(mmd_data)
+
+        results = self._create_result_structure(matchup_count, 5, 6)
+
+        self._write_result_data(cmd_line_args.o[0], input_file, results)
+
+    def _write_result_data(self, output_dir, input_file, results):
         target_file_name = self._create_target_file_name(input_file)
-        target_path = os.path.join(cmd_line_args.o[0], target_file_name)
+        target_path = os.path.join(output_dir, target_file_name)
 
-        results.to_netcdf(target_path, format='netCDF4', engine='netcdf4')
+        comp = dict(zlib=True, complevel=5)
+        encoding = dict()
+        for var_name in results.data_vars:
+            var_encoding = dict(comp)
+            var_encoding.update(results[var_name].encoding)
+            encoding.update({var_name : var_encoding})
+
+        results.to_netcdf(target_path, format='netCDF4', engine='netcdf4', encoding=encoding)
 
     @staticmethod
     def _create_result_structure(num_matchups, max_iterations, num_bt):
