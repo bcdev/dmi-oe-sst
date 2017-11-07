@@ -21,14 +21,14 @@ class MmdReader:
                 target_variable_name = variable_name[len(in_situ_sensor) + 1 : len(variable_name)]
             variable = input_data.variables[variable_name]
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
-                self._scale_data(variable)
+                MmdReader._scale_data(variable)
 
             subset_data[target_variable_name] = variable
 
         return subset_data
 
-    # @todo 3 tb/tb write test 2017-10-30
-    def _scale_data(self, variable):
+    @staticmethod
+    def _scale_data(variable):
         scale_factor = 1.0
         if SCALE_FACTOR in variable.attrs:
             scale_factor = variable.attrs[SCALE_FACTOR]
