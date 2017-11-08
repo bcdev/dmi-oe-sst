@@ -39,8 +39,8 @@ class MmdReader:
             scaled_data = variable.data * scale_factor + offset
             variable.data = scaled_data
 
-    # @todo 2 tb/tb write test 2017-10-30
-    def _get_insitu_sensor(self, input_data):
+    @staticmethod
+    def _get_insitu_sensor(input_data):
         variable_keys = input_data.variables.keys()
         for variable_key in variable_keys:
             if "animal-sst" in variable_key:

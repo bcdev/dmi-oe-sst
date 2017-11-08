@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import xarray as xr
 from xarray import Variable
 
 from dmi.sst.mw_oe.mmd_reader import MmdReader
@@ -55,3 +56,28 @@ class MmdReaderTest(unittest.TestCase):
 
         self.assertAlmostEqual(6.0, variable.data[0, 1], 8)
         self.assertAlmostEqual(6.2, variable.data[1, 1], 8)
+
+    def test_get_insitu_sensor_animal(self):
+        dataset = self._create_dataset_with_variable("animal-sst_bla")
+
+        insitu_sensor = MmdReader._get_insitu_sensor(dataset)
+        self.assertEqual("animal-sst", insitu_sensor)
+
+    def test_get_insitu_sensor_radiometer(self):
+        dataset = self._create_dataset_with_variable("radiometer-sst_blubb")
+
+        insitu_sensor = MmdReader._get_insitu_sensor(dataset)
+        self.assertEqual("radiometer-sst", insitu_sensor)
+
+    def test_get_insitu_sensor_unsupported(self):
+        dataset = self._create_dataset_with_variable("unsupported-sensor")
+
+        with self.assertRaises(IOError):
+            MmdReader._get_insitu_sensor(dataset)
+
+    def _create_dataset_with_variable(self, variable_name):
+        dataset = xr.Dataset()
+        array = DefaultData.create_default_array(2, 2, np.int16)
+        variable = Variable(["y", "x"], array)
+        dataset[variable_name] = variable
+        return dataset
