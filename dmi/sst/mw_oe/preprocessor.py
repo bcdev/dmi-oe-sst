@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 
 
@@ -11,6 +12,8 @@ class Preprocessor:
     def run(self, dataset):
 
         preprocessed_data = xr.Dataset()
+        num_matchups = len(dataset.coords["matchup_count"])
+        preprocessed_data["mask_vector"] = np.zeros(num_matchups)
 
         for variable_name in dataset.variables:
             if variable_name in self.TO_SQUEEZE_NAMES:
@@ -18,7 +21,8 @@ class Preprocessor:
                 continue
 
             if variable_name in self.TO_AVERAGE_NAMES:
-                print(variable_name)
+                for i in range(0, num_matchups - 1):
+                    layer = dataset.variables[variable_name][i, :, :]
                 continue
 
             if variable_name in self.TO_CENTER_EXTRACT_NAMES:

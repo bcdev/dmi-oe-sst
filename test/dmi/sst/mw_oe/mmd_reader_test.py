@@ -75,9 +75,20 @@ class MmdReaderTest(unittest.TestCase):
         with self.assertRaises(IOError):
             MmdReader._get_insitu_sensor(dataset)
 
+    def test_add_fill_values_no_scaling_no_fill_value(self):
+        variable = self._create_variable(np.int16)
+        MmdReader._add_fill_values(variable)
+        self.assertTrue("_FillValue" in variable.attrs)
+        self.assertEqual(DefaultData.get_default_fill_value(np.int16), variable.attrs["_FillValue"])
+
     def _create_dataset_with_variable(self, variable_name):
         dataset = xr.Dataset()
         array = DefaultData.create_default_array(2, 2, np.int16)
         variable = Variable(["y", "x"], array)
         dataset[variable_name] = variable
         return dataset
+
+    def _create_variable(self, data_type):
+        array = DefaultData.create_default_array(2, 2, data_type)
+        variable = Variable(["y", "x"], array)
+        return variable

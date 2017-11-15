@@ -28,20 +28,20 @@ INPUT_VARIABLES = ["amsre.latitude",                        # float, degrees nor
                    "amsre.scan_data_quality",               # int32
                    "amsre.Geostationary_Reflection_Latitude", # float, degree
                    "amsre.Geostationary_Reflection_Longitude", # float, degree
-                   "amsre.nwp.seaice_fraction",             # float, fill=2E20
-                   "amsre.nwp.sea_surface_temperature",     # float, Kelvin, fill=2E20
-                   "amsre.nwp.10m_east_wind_component",     # float, m/s
-                   "amsre.nwp.10m_north_wind_component",    # float, m/s
-                   "amsre.nwp.skin_temperature",            # float, Kelvin
-                   "amsre.nwp.log_surface_pressure",        # float
-                   "amsre.nwp.cloud_liquid_water",          # float, kg/kg
-                   "amsre.nwp.total_column_water_vapour",   # float, kg/m^2
-                   "amsre.nwp.total_precip",                # float, m
-                   "{IS_SENSOR}_insitu.time",               # int32, s, seconds since 1978-01-01, fill=-32768
-                   "{IS_SENSOR}_insitu.lat",                # float, degrees north,fill=-32768.0
-                   "{IS_SENSOR}_insitu.lon",                # float, degrees east,fill=-32768.0
-                   "{IS_SENSOR}_insitu.sst_depth",          # float, m ,fill=-32768.0
-                   "{IS_SENSOR}_insitu.sea_surface_temperature", # float, Celsius, fill=-32768.0
-                   "{IS_SENSOR}_insitu.sst_qc_flag",       # int16, fill=-32768
-                   "{IS_SENSOR}_insitu.sst_track_flag",    # int16, fill=-32768
+                   "amsre.nwp.seaice_fraction",             # float, fill=2E20                                  pre: extract_center
+                   "amsre.nwp.sea_surface_temperature",     # float, Kelvin, fill=2E20                          pre: extract_center
+                   "amsre.nwp.10m_east_wind_component",     # float, m/s                                        pre: extract_center
+                   "amsre.nwp.10m_north_wind_component",    # float, m/s                                        pre: extract_center
+                   "amsre.nwp.skin_temperature",            # float, Kelvin                                     pre: extract_center
+                   "amsre.nwp.log_surface_pressure",        # float                                             pre: extract_center
+                   "amsre.nwp.cloud_liquid_water",          # float, kg/kg                                      pre: extract_center
+                   "amsre.nwp.total_column_water_vapour",   # float, kg/m^2                                     pre: extract_center
+                   "amsre.nwp.total_precip",                # float, m                                          pre: extract_center
+                   "{IS_SENSOR}_insitu.time",               # int32, s, seconds since 1978-01-01, fill=-32768   pre: squeeze
+                   "{IS_SENSOR}_insitu.lat",                # float, degrees north,fill=-32768.0                pre: squeeze
+                   "{IS_SENSOR}_insitu.lon",                # float, degrees east,fill=-32768.0                 pre: squeeze
+                   "{IS_SENSOR}_insitu.sst_depth",          # float, m ,fill=-32768.0                           pre: squeeze
+                   "{IS_SENSOR}_insitu.sea_surface_temperature", # float, Celsius, fill=-32768.0                pre: squeeze
+                   "{IS_SENSOR}_insitu.sst_qc_flag",       # int16, fill=-32768                                 pre: squeeze
+                   "{IS_SENSOR}_insitu.sst_track_flag",    # int16, fill=-32768                                 pre: squeeze
                    ]

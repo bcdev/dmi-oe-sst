@@ -1,6 +1,7 @@
 import xarray as xr
 
 from dmi.sst.mw_oe.constants import INPUT_VARIABLES
+from dmi.sst.util.default_data import DefaultData
 
 OFFSET = "OFFSET"
 SCALE_FACTOR = "SCALE_FACTOR"
@@ -20,8 +21,11 @@ class MmdReader:
                 variable_name = variable_name.replace("{IS_SENSOR}", in_situ_sensor)
                 target_variable_name = variable_name[len(in_situ_sensor) + 1 : len(variable_name)]
             variable = input_data.variables[variable_name]
+
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
                 MmdReader._scale_data(variable)
+
+            MmdReader._add_fill_values(variable)
 
             subset_data[target_variable_name] = variable
 
@@ -65,3 +69,9 @@ class MmdReader:
                 return "xbt-sst"
 
         raise IOError("unsupported data format")
+
+    @staticmethod
+    def _add_fill_values(variable):
+        if not "FillValue" in variable.attrs:
+            variable.attrs["_FillValue"] = DefaultData.get_default_fill_value(variable.dtype)
+
