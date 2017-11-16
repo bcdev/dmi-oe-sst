@@ -11,7 +11,7 @@ from dmi.sst.util.default_data import DefaultData
 
 
 class MwOeSstProcessor:
-    _version = "0.0.1"
+    _version = "0.0.2"
 
     KERNEL_SIZE = 4
 
@@ -36,23 +36,6 @@ class MwOeSstProcessor:
         # - amsre.time
         # - amsre.solar_zenith_angle
         # - amsre.satellite_zenith_angle
-        # - amsre.nwp.sea_surface_temperature
-        # - amsre.nwp.10m_east_wind_component
-        # - amsre.nwp.10m_north_wind_component
-        # - amsre.nwp.skin_temperature
-        # - amsre.nwp.log_surface_pressure
-        # - amsre.nwp.total_column_water_vapour
-        # - amsre.nwp.total_precip
-        # - amsre.brightness_temperature6V
-        # - amsre.brightness_temperature6H
-        # - amsre.brightness_temperature10V
-        # - amsre.brightness_temperature10H
-        # - amsre.brightness_temperature18V
-        # - amsre.brightness_temperature18H
-        # - amsre.brightness_temperature23V
-        # - amsre.brightness_temperature23H
-        # - amsre.brightness_temperature36V
-        # - amsre.brightness_temperature36H
         # - amsre.pixel_data_quality6V
         # - amsre.pixel_data_quality6H
         # - amsre.pixel_data_quality10V
@@ -75,18 +58,6 @@ class MwOeSstProcessor:
         # strange flag data processing
         # pre: sea_ice_fraction
         # - amsre.land_ocean_flag_6
-        #
-        # mean over 5x5 and 11x11 @todo 2tb/tb check if these are really used 2017-11-06
-        # - amsre.brightness_temperature6V
-        # - amsre.brightness_temperature6H
-        # - amsre.brightness_temperature10V
-        # - amsre.brightness_temperature10H
-        # - amsre.brightness_temperature18V
-        # - amsre.brightness_temperature18H
-        # - amsre.brightness_temperature23H
-        # - amsre.brightness_temperature36V
-        # - amsre.brightness_temperature36H
-
 
         preprocessor = Preprocessor()
         pre_proc_mmd_data = preprocessor.run(mmd_data)

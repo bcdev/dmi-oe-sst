@@ -25,7 +25,7 @@ class MmdReader:
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
                 MmdReader._scale_data(variable)
 
-            MmdReader._add_fill_values(variable)
+            MmdReader._add_fill_values(variable, target_variable_name)
 
             subset_data[target_variable_name] = variable
 
@@ -33,15 +33,20 @@ class MmdReader:
 
     @staticmethod
     def _scale_data(variable):
+        scale_factor, offset = MmdReader.get_scale_and_offset(variable)
+        if scale_factor != 1.0 or offset != 0.0:
+            scaled_data = variable.data * scale_factor + offset
+            variable.data = scaled_data
+
+    @staticmethod
+    def get_scale_and_offset(variable):
         scale_factor = 1.0
         if SCALE_FACTOR in variable.attrs:
             scale_factor = variable.attrs[SCALE_FACTOR]
         offset = 0.0
         if OFFSET in variable.attrs:
             offset = variable.attrs[OFFSET]
-        if scale_factor != 1.0 or offset != 0.0:
-            scaled_data = variable.data * scale_factor + offset
-            variable.data = scaled_data
+        return scale_factor, offset
 
     @staticmethod
     def _get_insitu_sensor(input_data):
@@ -71,7 +76,30 @@ class MmdReader:
         raise IOError("unsupported data format")
 
     @staticmethod
-    def _add_fill_values(variable):
+    def _add_fill_values(variable, target_variable_name):
+        if  "brightness_temperature" in target_variable_name:
+            offset = variable.attrs["OFFSET"]
+            scale_factor = variable.attrs["SCALE_FACTOR"]
+            variable.attrs["_FillValue"] = -32768.0 * scale_factor + offset
+            return
+
+        if "insitu." in target_variable_name:
+            variable.attrs["_FillValue"] = -32768
+            return
+
+        if "source" in variable.attrs:
+            variable.attrs["_FillValue"] = 2e20
+            return
+
         if not "FillValue" in variable.attrs:
-            variable.attrs["_FillValue"] = DefaultData.get_default_fill_value(variable.dtype)
+            default_fill = DefaultData.get_default_fill_value(variable.dtype)
+            scale_factor, offset = MmdReader.get_scale_and_offset(variable)
+            if scale_factor != 1.0 or offset != 0.0:
+                variable.attrs["_FillValue"] = default_fill * scale_factor + offset
+            else:
+                variable.attrs["_FillValue"] = default_fill
+            return
+
+
+
 

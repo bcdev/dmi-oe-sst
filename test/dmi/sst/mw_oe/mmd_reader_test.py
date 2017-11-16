@@ -75,11 +75,46 @@ class MmdReaderTest(unittest.TestCase):
         with self.assertRaises(IOError):
             MmdReader._get_insitu_sensor(dataset)
 
-    def test_add_fill_values_no_scaling_no_fill_value(self):
+    def test_add_fill_values_no_scaling_no_fill_value_int16(self):
         variable = self._create_variable(np.int16)
-        MmdReader._add_fill_values(variable)
-        self.assertTrue("_FillValue" in variable.attrs)
+        MmdReader._add_fill_values(variable, "don't care")
         self.assertEqual(DefaultData.get_default_fill_value(np.int16), variable.attrs["_FillValue"])
+
+    def test_add_fill_values_no_scaling_no_fill_value_float32(self):
+        variable = self._create_variable(np.float32)
+        MmdReader._add_fill_values(variable, "don't care")
+        self.assertEqual(DefaultData.get_default_fill_value(np.float32), variable.attrs["_FillValue"])
+
+    def test_add_fill_values_no_scaling_fill_value_untouched(self):
+        variable = self._create_variable(np.int8)
+        variable.attrs["_FillValue"] = -127
+        MmdReader._add_fill_values(variable, "don't care")
+        self.assertEqual(-127, variable.attrs["_FillValue"])
+
+    def test_add_fill_values_scaling_brightness_temperature(self):
+        variable = self._create_variable(np.int16)
+        variable.attrs["OFFSET"] = 327.68
+        variable.attrs["SCALE_FACTOR"] = 0.01
+        MmdReader._add_fill_values(variable, "amsre.brightness_temperature23V")
+        self.assertAlmostEqual(0.0, variable.attrs["_FillValue"], 8)
+
+    def test_add_fill_values_scaling_no_fill_value_int16(self):
+        variable = self._create_variable(np.int16)
+        variable.attrs["OFFSET"] = 0.0
+        variable.attrs["SCALE_FACTOR"] = 0.01
+        MmdReader._add_fill_values(variable, "don't care")
+        self.assertAlmostEqual(-327.67, variable.attrs["_FillValue"], 8)
+
+    def test_add_fill_values_grib_data(self):
+        variable = self._create_variable(np.int16)
+        variable.attrs["source"] = "GRIB data"
+        MmdReader._add_fill_values(variable, "don't care")
+        self.assertAlmostEqual(2e20, variable.attrs["_FillValue"], 8)
+
+    def test_add_fill_values_insitu_data(self):
+        variable = self._create_variable(np.int16)
+        MmdReader._add_fill_values(variable, "insitu.lon")
+        self.assertAlmostEqual(-32768, variable.attrs["_FillValue"], 8)
 
     def _create_dataset_with_variable(self, variable_name):
         dataset = xr.Dataset()
