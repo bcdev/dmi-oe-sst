@@ -27,9 +27,6 @@ class MwOeSstProcessor:
 
         # preprocessing
         #
-        # mean over 5x5
-        # - amsre.nwp.seaice_fraction
-        #
         # central pixel only
         # - amsre.latitude
         # - amsre.longitude

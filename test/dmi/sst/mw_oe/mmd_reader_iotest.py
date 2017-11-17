@@ -16,11 +16,11 @@ class MmdReaderIoTest(unittest.TestCase):
 
         self.assertIsNotNone(input_data.variables["amsre.latitude"])
         self.assertIsNotNone(input_data.variables["amsre.longitude"])
-        self.assertIsNotNone(input_data.variables["amsre.time"])  # @todo 3 tb/tb check if this is ever used 2017-10-27
+        # IS NOT USED self.assertIsNotNone(input_data.variables["amsre.time"])
         self.assertIsNotNone(input_data.variables["amsre.solar_zenith_angle"])
         self.assertIsNotNone(input_data.variables["amsre.satellite_zenith_angle"])
         self.assertIsNotNone(input_data.variables["amsre.satellite_azimuth_angle"])
-        self.assertIsNotNone(input_data.variables["amsre.land_ocean_flag_6"])
+        # IS NOT USED self.assertIsNotNone(input_data.variables["amsre.land_ocean_flag_6"])
         self.assertIsNotNone(input_data.variables["amsre.brightness_temperature6V"])
         self.assertIsNotNone(input_data.variables["amsre.brightness_temperature6H"])
         self.assertIsNotNone(input_data.variables["amsre.brightness_temperature10V"])
@@ -45,7 +45,7 @@ class MmdReaderIoTest(unittest.TestCase):
         self.assertIsNotNone(input_data.variables["amsre.Geostationary_Reflection_Latitude"])
         self.assertIsNotNone(input_data.variables["amsre.Geostationary_Reflection_Longitude"])
 
-        self.assertIsNotNone(input_data.variables["amsre.nwp.seaice_fraction"])
+        # IS NOT USED self.assertIsNotNone(input_data.variables["amsre.nwp.seaice_fraction"])
         self.assertIsNotNone(input_data.variables["amsre.nwp.sea_surface_temperature"])
         self.assertIsNotNone(input_data.variables["amsre.nwp.10m_east_wind_component"])
         self.assertIsNotNone(input_data.variables["amsre.nwp.10m_north_wind_component"])
