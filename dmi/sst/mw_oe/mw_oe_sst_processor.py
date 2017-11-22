@@ -25,43 +25,13 @@ class MwOeSstProcessor:
 
         matchup_count = mmd_data.dims["matchup_count"]
 
-        # preprocessing
-        #
-        # central pixel only
-        # - amsre.latitude
-        # - amsre.longitude
-        # - amsre.time
-        # - amsre.solar_zenith_angle
-        # - amsre.satellite_zenith_angle
-        # - amsre.pixel_data_quality6V
-        # - amsre.pixel_data_quality6H
-        # - amsre.pixel_data_quality10V
-        # - amsre.pixel_data_quality10H
-        # - amsre.pixel_data_quality18V
-        # - amsre.pixel_data_quality18H
-        # - amsre.pixel_data_quality23V
-        # - amsre.pixel_data_quality23H
-        # - amsre.pixel_data_quality36V
-        # - amsre.pixel_data_quality36H
-        # - amsre.scan_data_quality
-        # - amsre.Geostationary_Reflection_Latitude
-        # - amsre.Geostationary_Reflection_Longitude
-        # - amsre.satellite_azimuth_angle
-        #
-        # calculate TCLW
-        # pre: log_surface_pressure present
-        # - amsre.nwp.cloud_liquid_water
-        #
-        # strange flag data processing
-        # pre: sea_ice_fraction
-        # - amsre.land_ocean_flag_6
-
         preprocessor = Preprocessor()
         pre_proc_mmd_data = preprocessor.run(mmd_data)
 
         results = self._create_result_structure(matchup_count, 5, 6)
 
         self._write_result_data(cmd_line_args.o[0], input_file, results)
+        mmd_reader.close()
 
     def _write_result_data(self, output_dir, input_file, results):
         target_file_name = self._create_target_file_name(input_file)

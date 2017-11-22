@@ -8,19 +8,21 @@ SCALE_FACTOR = "SCALE_FACTOR"
 
 
 class MmdReader:
+    input_data = None
+
     def read(self, input_file):
         # xarray can not handle the TAI 1993 time coding @todo 3 tb/th adapt if possible
-        input_data = xr.open_dataset(input_file, decode_times=False)
+        self.input_data = xr.open_dataset(input_file, decode_times=False)
 
         subset_data = xr.Dataset()
 
         for variable_name in INPUT_VARIABLES:
             target_variable_name = variable_name
             if "{IS_SENSOR}" in variable_name:
-                in_situ_sensor = self._get_insitu_sensor(input_data)
+                in_situ_sensor = self._get_insitu_sensor(self.input_data)
                 variable_name = variable_name.replace("{IS_SENSOR}", in_situ_sensor)
-                target_variable_name = variable_name[len(in_situ_sensor) + 1 : len(variable_name)]
-            variable = input_data.variables[variable_name]
+                target_variable_name = variable_name[len(in_situ_sensor) + 1: len(variable_name)]
+            variable = self.input_data.variables[variable_name]
 
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
                 MmdReader._scale_data(variable)
@@ -30,6 +32,9 @@ class MmdReader:
             subset_data[target_variable_name] = variable
 
         return subset_data
+
+    def close(self):
+        self.input_data.close()
 
     @staticmethod
     def _scale_data(variable):
@@ -77,7 +82,7 @@ class MmdReader:
 
     @staticmethod
     def _add_fill_values(variable, target_variable_name):
-        if  "brightness_temperature" in target_variable_name:
+        if "brightness_temperature" in target_variable_name:
             offset = variable.attrs["OFFSET"]
             scale_factor = variable.attrs["SCALE_FACTOR"]
             variable.attrs["_FillValue"] = -32768.0 * scale_factor + offset
@@ -99,7 +104,3 @@ class MmdReader:
             else:
                 variable.attrs["_FillValue"] = default_fill
             return
-
-
-
-
