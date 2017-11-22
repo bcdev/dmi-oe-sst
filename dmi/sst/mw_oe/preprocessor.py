@@ -2,6 +2,7 @@ import numpy as np
 import xarray as xr
 from xarray import Variable
 
+from dmi.sst.mw_oe.pressure_processor import PressureProcessor
 from dmi.sst.util.default_data import DefaultData
 
 
@@ -35,6 +36,8 @@ class Preprocessor:
             if variable_name in self.TO_CENTER_EXTRACT_NAMES:
                 self.extract_center_px(dataset, preprocessed_data, variable_name)
                 continue
+
+        self.calculate_TCWV(preprocessed_data)
 
         preprocessed_data["invalid_data"] = Variable(["matchup"], invalid_data_array)
         return preprocessed_data
@@ -80,3 +83,9 @@ class Preprocessor:
 
     def squeeze_data(self, dataset, preprocessed_data, variable_name):
         preprocessed_data[variable_name] = dataset.variables[variable_name].squeeze()
+
+    def calculate_TCWV(self, preprocessed_data):
+        surface_pressure = np.exp(preprocessed_data["amsre.nwp.log_surface_pressure"])
+
+        pressure_processor = PressureProcessor()
+        pressure_levels = pressure_processor.calculate_pressure_levels(surface_pressure)
