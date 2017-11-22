@@ -18,6 +18,7 @@ class Preprocessor:
                                "amsre.Geostationary_Reflection_Longitude", "amsre.latitude", "amsre.longitude"]
 
     AVERAGING_LENGTH = 5  # @todo 3 tb/tb this can be a parameter to the processor 2017-11-17
+    INV_GRAVITY_CONST = 1.0 / 9.80665  # s^2/m
 
     def run(self, dataset):
         preprocessed_data = xr.Dataset()
@@ -37,7 +38,7 @@ class Preprocessor:
                 self.extract_center_px(dataset, preprocessed_data, variable_name)
                 continue
 
-        self.calculate_TCWV(preprocessed_data)
+        self.calculate_TCLW(preprocessed_data)
 
         preprocessed_data["invalid_data"] = Variable(["matchup"], invalid_data_array)
         return preprocessed_data
@@ -75,17 +76,31 @@ class Preprocessor:
 
     def extract_center_px(self, dataset, preprocessed_data, variable_name):
         variable = dataset.variables[variable_name]
-        width = variable.shape[2]
-        height = variable.shape[1]
-        center_x = int(np.floor(width / 2))
-        center_y = int(np.floor(height / 2))
-        preprocessed_data[variable_name] = variable[:, center_y, center_x].squeeze()
+        if len(variable.shape) == 3:
+            width = variable.shape[2]
+            height = variable.shape[1]
+            center_x = int(np.floor(width / 2))
+            center_y = int(np.floor(height / 2))
+            preprocessed_data[variable_name] = variable[:, center_y, center_x].squeeze()
+        elif len(variable.shape) == 4:
+            width = variable.shape[3]
+            height = variable.shape[2]
+            center_x = int(np.floor(width / 2))
+            center_y = int(np.floor(height / 2))
+            preprocessed_data[variable_name] = variable[:, :, center_y, center_x].squeeze()
 
     def squeeze_data(self, dataset, preprocessed_data, variable_name):
         preprocessed_data[variable_name] = dataset.variables[variable_name].squeeze()
 
-    def calculate_TCWV(self, preprocessed_data):
+    def calculate_TCLW(self, preprocessed_data):
         surface_pressure = np.exp(preprocessed_data["amsre.nwp.log_surface_pressure"])
 
         pressure_processor = PressureProcessor()
         pressure_levels = pressure_processor.calculate_pressure_levels(surface_pressure)
+
+        clw = preprocessed_data["amsre.nwp.cloud_liquid_water"]
+
+        tclw_tmp = clw.data * pressure_levels.data
+        tclw_tmp = tclw_tmp * self.INV_GRAVITY_CONST
+        tclw = np.sum(tclw_tmp, axis=1)
+        preprocessed_data["amsre.nwp.total_column_liquid_water"] = Variable(["num_matchups"], tclw)

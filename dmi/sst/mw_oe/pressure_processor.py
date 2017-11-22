@@ -31,7 +31,7 @@ class PressureProcessor:
         num_levels = len(self.A_COEFFS) - 1
         num_measures = len(sea_level_pressure)
 
-        target_data = DefaultData.create_default_array(num_levels, num_measures, np.float32, fill_value=np.NaN)
+        target_data = DefaultData.create_default_array(num_levels, num_measures,np.float32, fill_value=np.NaN)
         for i in range(0, num_measures):
             # p_h = np.float64(sea_level_pressure[i]) * self.B_COEFFS_INT + self.A_COEFFS_INT
             p_f = np.float32(sea_level_pressure[i]) * self.B_COEFFS + self.A_COEFFS

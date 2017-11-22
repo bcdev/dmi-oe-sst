@@ -43,6 +43,20 @@ class DefaultData:
         return default_array
 
     @staticmethod
+    def create_default_array_4d(width, height, layer, channel, dtype, dims_names=None, fill_value=None):
+        if fill_value is None:
+            fill_value = DefaultData.get_default_fill_value(dtype)
+
+        empty_array = np.full([channel, layer, height, width], fill_value, dtype)
+
+        if dims_names is not None:
+            default_array = xr.DataArray(empty_array, dims=dims_names)
+        else:
+            default_array = xr.DataArray(empty_array, dims=['c', 'z', 'y', 'x'])
+
+        return default_array
+
+    @staticmethod
     def get_default_fill_value(dtype):
         """
         Returns a CF conforming default fill value for the data type
