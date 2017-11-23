@@ -76,7 +76,7 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual((5,), variable.shape)
         self.assertEqual(103, variable.data[0])
 
-        self.assertEqual(0, prep_data.variables["invalid_data"].data[0])
+        self.assertFalse(prep_data.variables["invalid_data"].data[0])
 
     def test_run_average_variables_masks_invalid(self):
         fill_value = -79
@@ -100,7 +100,7 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual((4,), variable.shape)
         self.assertAlmostEqual(106.04348, variable.data[0], 5)
 
-        self.assertEqual(0, prep_data.variables["invalid_data"].data[0])
+        self.assertFalse(prep_data.variables["invalid_data"].data[0])
 
     def test_run_average_variables_too_many_invalid(self):
         fill_value = -79
@@ -126,7 +126,7 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual((4,), variable.shape)
         self.assertAlmostEqual(fill_value, variable.data[0], 5)
 
-        self.assertEqual(1, prep_data.variables["invalid_data"].data[0])
+        self.assertTrue(prep_data.variables["invalid_data"].data[0])
 
     def test_run_total_column_water_vapour(self):
         self.dataset = xr.Dataset()

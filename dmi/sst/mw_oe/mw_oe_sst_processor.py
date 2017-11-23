@@ -7,6 +7,7 @@ from xarray import Variable
 
 from dmi.sst.mw_oe.mmd_reader import MmdReader
 from dmi.sst.mw_oe.preprocessor import Preprocessor
+from dmi.sst.mw_oe.qa_processor import QaProcessor
 from dmi.sst.util.default_data import DefaultData
 
 
@@ -27,6 +28,9 @@ class MwOeSstProcessor:
 
         preprocessor = Preprocessor()
         pre_proc_mmd_data = preprocessor.run(mmd_data)
+
+        qa_processor = QaProcessor()
+        qa_processor.run_qa(pre_proc_mmd_data)
 
         results = self._create_result_structure(matchup_count, 5, 6)
 

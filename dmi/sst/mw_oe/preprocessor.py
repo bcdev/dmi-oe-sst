@@ -23,7 +23,7 @@ class Preprocessor:
     def run(self, dataset):
         preprocessed_data = xr.Dataset()
         num_matchups = len(dataset.coords["matchup_count"])
-        invalid_data_array = np.zeros(num_matchups)
+        invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
 
         for variable_name in dataset.variables:
             if variable_name in self.TO_SQUEEZE_NAMES:
@@ -70,7 +70,7 @@ class Preprocessor:
                 target_data[i] = np.ma.average(masked_layer)
             else:
                 target_data[i] = fill_value
-                invalid_data_array[i] = 1
+                invalid_data_array[i] = True
 
         preprocessed_data[variable_name] = Variable(["matchup"], target_data)
 
