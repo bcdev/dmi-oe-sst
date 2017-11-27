@@ -149,3 +149,24 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(0.064784832, variable.data[0], 8)
         self.assertAlmostEqual(0.059696469, variable.data[1], 8)
         self.assertAlmostEqual(0.028990047, variable.data[2], 8)
+
+    def test_run_windspeed(self):
+        data = DefaultData.create_default_array_3d(3, 3, 11, np.float32, fill_value=np.NaN)
+        data[0, :, :] = 2
+        data[1, :, :] = 3
+        data[2, :, :] = 4
+        self.dataset["amsre.nwp.10m_east_wind_component"] = Variable(["matchup_count", "ny", "nx"], data)
+
+        data = DefaultData.create_default_array_3d(3, 3, 11, np.float32, fill_value=np.NaN)
+        data[0, :, :] = 5
+        data[1, :, :] = 6
+        data[2, :, :] = 7
+        self.dataset["amsre.nwp.10m_north_wind_component"] = Variable(["matchup_count", "ny", "nx"], data)
+
+        prep_data = self.preprocessor.run(self.dataset)
+        variable = prep_data.variables["amsre.nwp.abs_wind_speed"]
+        self.assertEqual((11,), variable.shape)
+        self.assertAlmostEqual(5.3851647, variable.data[0], 7)
+        self.assertAlmostEqual(6.7082038, variable.data[1], 7)
+        self.assertAlmostEqual(8.0622578, variable.data[2], 7)
+

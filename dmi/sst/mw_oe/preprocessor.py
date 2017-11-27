@@ -10,12 +10,13 @@ class Preprocessor:
     TO_SQUEEZE_NAMES = ["insitu.time", "insitu.lat", "insitu.lon", "insitu.sea_surface_temperature", "insitu.sst_depth", "insitu.sst_qc_flag", "insitu.sst_track_flag]"]
     TO_AVERAGE_NAMES = ["amsre.brightness_temperature6V", "amsre.brightness_temperature6H", "amsre.brightness_temperature10V", "amsre.brightness_temperature10H", "amsre.brightness_temperature18V",
                         "amsre.brightness_temperature18H", "amsre.brightness_temperature23V", "amsre.brightness_temperature23H", "amsre.brightness_temperature36V", "amsre.brightness_temperature36H"]
-    TO_CENTER_EXTRACT_NAMES = ["amsre.nwp.sea_surface_temperature", "amsre.nwp.10m_east_wind_component", "amsre.nwp.10m_north_wind_component", "amsre.nwp.skin_temperature",
+    TO_CENTER_EXTRACT_NAMES = ["amsre.nwp.sea_surface_temperature", "amsre.nwp.skin_temperature",
                                "amsre.nwp.log_surface_pressure", "amsre.nwp.cloud_liquid_water", "amsre.nwp.total_column_water_vapour", "amsre.nwp.total_precip", "amsre.pixel_data_quality6V",
                                "amsre.pixel_data_quality6H", "amsre.pixel_data_quality10V", "amsre.pixel_data_quality10H", "amsre.pixel_data_quality18V", "amsre.pixel_data_quality18H",
                                "amsre.pixel_data_quality23V", "amsre.pixel_data_quality23H", "amsre.pixel_data_quality36V", "amsre.pixel_data_quality36H", "amsre.solar_zenith_angle",
                                "amsre.scan_data_quality", "amsre.satellite_zenith_angle", "amsre.satellite_azimuth_angle", "amsre.Geostationary_Reflection_Latitude",
                                "amsre.Geostationary_Reflection_Longitude", "amsre.latitude", "amsre.longitude"]
+    WIND_SPEED_VARIABLES = ["amsre.nwp.10m_east_wind_component", "amsre.nwp.10m_north_wind_component"]
 
     AVERAGING_LENGTH = 5  # @todo 3 tb/tb this can be a parameter to the processor 2017-11-17
     INV_GRAVITY_CONST = 1.0 / 9.80665  # s^2/m
@@ -38,10 +39,22 @@ class Preprocessor:
                 self.extract_center_px(dataset, preprocessed_data, variable_name)
                 continue
 
+            if variable_name in self.WIND_SPEED_VARIABLES:
+                self.process_wind_speed(dataset, preprocessed_data)
+                continue
+
         self.calculate_TCLW(preprocessed_data)
 
         preprocessed_data["invalid_data"] = Variable(["matchup"], invalid_data_array)
         return preprocessed_data
+
+    def process_wind_speed(self, dataset, preprocessed_data):
+        self.extract_center_px(dataset, preprocessed_data, self.WIND_SPEED_VARIABLES[0])
+        self.extract_center_px(dataset, preprocessed_data, self.WIND_SPEED_VARIABLES[1])
+        east_wind_data = preprocessed_data.variables[self.WIND_SPEED_VARIABLES[0]].data
+        north_wind_data = preprocessed_data.variables[self.WIND_SPEED_VARIABLES[1]].data
+        abs_wind_speed_data = np.sqrt(np.square(east_wind_data) + np.square(north_wind_data))
+        preprocessed_data["amsre.nwp.abs_wind_speed"] = Variable(["matchup"], abs_wind_speed_data)
 
     def average_subset(self, dataset, invalid_data_array, preprocessed_data, variable_name):
         num_matchups = len(invalid_data_array)
