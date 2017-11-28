@@ -211,6 +211,32 @@ class QaProcessorTest(unittest.TestCase):
         self.assertTrue(self.dataset["invalid_data"].data[1])
         self.assertFalse(self.dataset["invalid_data"].data[2])
 
+    def test_run_qa_general_sst_pass(self):
+        data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
+        data[0] = 13.9
+        data[1] = -0.89
+        data[2] = 15.485
+        self.dataset["amsre.nwp.sea_surface_temperature"] = Variable(["matchup_count"], data)
+
+        self.qa_processor.run_qa_general(self.dataset)
+
+        self.assertFalse(self.dataset["invalid_data"].data[0])
+        self.assertFalse(self.dataset["invalid_data"].data[1])
+        self.assertFalse(self.dataset["invalid_data"].data[2])
+
+    def test_run_qa_general_sst_fail(self):
+        data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
+        data[0] = 13.9
+        data[1] = -2.01
+        data[2] = 40.485
+        self.dataset["insitu.sea_surface_temperature"] = Variable(["matchup_count"], data)
+
+        self.qa_processor.run_qa_general(self.dataset)
+
+        self.assertFalse(self.dataset["invalid_data"].data[0])
+        self.assertTrue(self.dataset["invalid_data"].data[1])
+        self.assertTrue(self.dataset["invalid_data"].data[2])
+
     def test_run_bt_delta_pass(self):
         data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
         data[0] = 10.9

@@ -9,6 +9,8 @@ LON_ABS_MAX = 180.0
 LAT_ABS_MAX = 90.0
 SZA_MIN = 0.0
 SZA_MAX = 180.0
+SST_MIN = -2.0
+SST_MAX = 40.0
 
 
 class QaProcessor():
@@ -54,6 +56,11 @@ class QaProcessor():
 
             if "solar_zenith_angle" in variable_name:
                 local_mask = (variable_data < SZA_MIN) | (variable_data > SZA_MAX)
+                flag_array = np.logical_or(flag_array, local_mask)
+                continue
+
+            if "sea_surface_temperature" in variable_name:
+                local_mask = (variable_data < SST_MIN) | (variable_data > SST_MAX)
                 flag_array = np.logical_or(flag_array, local_mask)
                 continue
 

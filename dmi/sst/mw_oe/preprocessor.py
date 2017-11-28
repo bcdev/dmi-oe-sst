@@ -82,7 +82,7 @@ class Preprocessor:
 
         max_num_invalid = int(np.ceil(self.AVERAGING_LENGTH * self.AVERAGING_LENGTH * 0.1))
 
-        for i in range(0, num_matchups - 1):
+        for i in range(0, num_matchups):
             layer = dataset.variables[variable_name][i, y_min:y_max, x_min: x_max]
             masked_layer = np.ma.masked_values(layer, fill_value)
             num_fills = np.ma.count_masked(masked_layer)
