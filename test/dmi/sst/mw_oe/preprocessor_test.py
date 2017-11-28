@@ -59,6 +59,17 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual((11,), variable.shape)
         self.assertAlmostEqual(1.02, variable.data[6], 8)
 
+    def test_run_fetch_center_pixel_convert_to_Celsius(self):
+        data = DefaultData.create_default_array_3d(5, 5, 11, np.float32)
+        data[5, 2, 2] = 279.6853
+        self.dataset["amsre.nwp.sea_surface_temperature"] = Variable(["matchup_count", "ny", "nx"], data)
+
+        prep_data = self.preprocessor.run(self.dataset)
+
+        variable = prep_data.variables["amsre.nwp.sea_surface_temperature"]
+        self.assertEqual((11,), variable.shape)
+        self.assertAlmostEqual(8.5353088, variable.data[5], 7)
+
     def test_run_average_variables(self):
         data = DefaultData.create_default_array_3d(7, 7, 5, np.int16)
         data[0, 1, :] = 102
