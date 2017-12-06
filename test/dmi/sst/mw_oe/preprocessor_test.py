@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 from xarray import Variable
 
+from dmi.sst.mw_oe.flag_coding import FlagCoding
 from dmi.sst.mw_oe.preprocessor import Preprocessor
 from dmi.sst.util.default_data import DefaultData
 
@@ -81,13 +82,16 @@ class PreprocessorTest(unittest.TestCase):
         variable.attrs["_FillValue"] = -78
         self.dataset["amsre.brightness_temperature6V"] = variable
 
-        prep_data = self.preprocessor.run(self.dataset)
+        flag_coding = FlagCoding(5)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
 
         variable = prep_data.variables["amsre.brightness_temperature6V"]
         self.assertEqual((5,), variable.shape)
         self.assertEqual(103, variable.data[0])
 
-        self.assertFalse(prep_data.variables["invalid_data"].data[0])
+        flags = flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
 
     def test_run_average_variables_masks_invalid(self):
         fill_value = -79
@@ -105,13 +109,16 @@ class PreprocessorTest(unittest.TestCase):
         variable.attrs["_FillValue"] = fill_value
         self.dataset["amsre.brightness_temperature6H"] = variable
 
-        prep_data = self.preprocessor.run(self.dataset)
+        flag_coding = FlagCoding(4)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
 
         variable = prep_data.variables["amsre.brightness_temperature6H"]
         self.assertEqual((4,), variable.shape)
         self.assertAlmostEqual(106.04348, variable.data[0], 5)
 
-        self.assertFalse(prep_data.variables["invalid_data"].data[0])
+        flags = flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
 
     def test_run_average_variables_too_many_invalid(self):
         fill_value = -79
@@ -131,13 +138,16 @@ class PreprocessorTest(unittest.TestCase):
         variable.attrs["_FillValue"] = fill_value
         self.dataset["amsre.brightness_temperature6H"] = variable
 
-        prep_data = self.preprocessor.run(self.dataset)
+        flag_coding = FlagCoding(4)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
 
         variable = prep_data.variables["amsre.brightness_temperature6H"]
         self.assertEqual((4,), variable.shape)
         self.assertAlmostEqual(fill_value, variable.data[0], 5)
 
-        self.assertTrue(prep_data.variables["invalid_data"].data[0])
+        flags = flag_coding.get_flags()
+        self.assertEqual(1, flags[0])
 
     def test_run_total_column_water_vapour(self):
         self.dataset = xr.Dataset()
@@ -149,9 +159,17 @@ class PreprocessorTest(unittest.TestCase):
         self.dataset["amsre.nwp.log_surface_pressure"] = Variable(["matchup_count", "ny", "nx"], data)
 
         data = DefaultData.create_default_array_4d(3, 3, 60, 11, np.float32, fill_value=np.NaN)
-        data[0, :, 1, 1] = np.float32(np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.3609621E-8, 3.7061102E-7, 4.273528E-6, 2.6397798E-5, 3.5652188E-6, 1.5417224E-4, 1.9648654E-4, 9.139678E-5, 8.232285E-6, 6.5089694E-7, 4.0974975E-9, 0.0]))
-        data[1, :, 1, 1] = np.float32(np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0075588E-7, 1.054102E-6, 1.1424428E-5, 2.2602183E-6, 1.546818E-4, 1.9482679E-4, 8.667531E-5, 4.7594845E-6, 2.708914E-9, 0.0, 0.0]))
-        data[2, :, 1, 1] = np.float32(np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.7519864E-9, 4.7594305E-8, 1.3165399E-6, 1.2988783E-4, 8.855922E-6, 3.5680281E-7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
+        data[0, :, 1, 1] = np.float32(np.array(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.3609621E-8, 3.7061102E-7, 4.273528E-6, 2.6397798E-5, 3.5652188E-6, 1.5417224E-4, 1.9648654E-4, 9.139678E-5, 8.232285E-6,
+             6.5089694E-7, 4.0974975E-9, 0.0]))
+        data[1, :, 1, 1] = np.float32(np.array(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0075588E-7, 1.054102E-6, 1.1424428E-5, 2.2602183E-6, 1.546818E-4, 1.9482679E-4, 8.667531E-5, 4.7594845E-6, 2.708914E-9, 0.0,
+             0.0]))
+        data[2, :, 1, 1] = np.float32(np.array(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.7519864E-9, 4.7594305E-8, 1.3165399E-6, 1.2988783E-4, 8.855922E-6, 3.5680281E-7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
         self.dataset["amsre.nwp.cloud_liquid_water"] = Variable(["matchup_count", "cloud_layers", "ny", "nx"], data)
 
         prep_data = self.preprocessor.run(self.dataset)
@@ -180,4 +198,3 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(5.3851647, variable.data[0], 7)
         self.assertAlmostEqual(6.7082038, variable.data[1], 7)
         self.assertAlmostEqual(8.0622578, variable.data[2], 7)
-

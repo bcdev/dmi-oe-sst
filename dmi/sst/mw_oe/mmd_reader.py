@@ -27,7 +27,7 @@ class MmdReader:
             if SCALE_FACTOR in variable.attrs or OFFSET in variable.attrs:
                 MmdReader._scale_data(variable)
 
-            MmdReader._add_fill_values(variable, target_variable_name)
+            MmdReader._add_fill_value_attributes(variable, target_variable_name)
 
             subset_data[target_variable_name] = variable
 
@@ -81,7 +81,7 @@ class MmdReader:
         raise IOError("unsupported data format")
 
     @staticmethod
-    def _add_fill_values(variable, target_variable_name):
+    def _add_fill_value_attributes(variable, target_variable_name):
         if "brightness_temperature" in target_variable_name:
             offset = variable.attrs["OFFSET"]
             scale_factor = variable.attrs["SCALE_FACTOR"]

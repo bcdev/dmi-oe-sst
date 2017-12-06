@@ -21,10 +21,8 @@ class Preprocessor:
     AVERAGING_LENGTH = 5  # @todo 3 tb/tb this can be a parameter to the processor 2017-11-17
     INV_GRAVITY_CONST = 1.0 / 9.80665  # s^2/m
 
-    def run(self, dataset):
+    def run(self, dataset, flag_coding=None):
         preprocessed_data = xr.Dataset()
-        num_matchups = len(dataset.coords["matchup_count"])
-        invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
 
         for variable_name in dataset.variables:
             if variable_name in self.TO_SQUEEZE_NAMES:
@@ -32,7 +30,7 @@ class Preprocessor:
                 continue
 
             if variable_name in self.TO_AVERAGE_NAMES:
-                self.average_subset(dataset, invalid_data_array, preprocessed_data, variable_name)
+                self.average_subset(dataset, preprocessed_data, variable_name, flag_coding)
                 continue
 
             if variable_name in self.TO_CENTER_EXTRACT_NAMES:
@@ -45,8 +43,7 @@ class Preprocessor:
                 continue
 
         self.calculate_TCLW(preprocessed_data)
-
-        preprocessed_data["invalid_data"] = Variable(["matchup"], invalid_data_array)
+        
         return preprocessed_data
 
     def convert_temperature(self, preprocessed_data, variable_name):
@@ -63,8 +60,9 @@ class Preprocessor:
         abs_wind_speed_data = np.sqrt(np.square(east_wind_data) + np.square(north_wind_data))
         preprocessed_data["amsre.nwp.abs_wind_speed"] = Variable(["matchup"], abs_wind_speed_data)
 
-    def average_subset(self, dataset, invalid_data_array, preprocessed_data, variable_name):
-        num_matchups = len(invalid_data_array)
+    def average_subset(self, dataset, preprocessed_data, variable_name, flag_coding=None):
+        num_matchups = len(dataset.coords["matchup_count"])
+        invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
         variable = dataset.variables[variable_name]
         fill_value = variable.attrs["_FillValue"]
         target_data = DefaultData.create_default_vector(num_matchups, np.float32, fill_value)
@@ -92,6 +90,9 @@ class Preprocessor:
                 target_data[i] = fill_value
                 invalid_data_array[i] = True
 
+        if flag_coding is not None:
+            flag_coding.add_avg_inv_thresh(invalid_data_array)
+            
         preprocessed_data[variable_name] = Variable(["matchup"], target_data)
 
     def extract_center_px(self, dataset, preprocessed_data, variable_name):
