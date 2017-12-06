@@ -2,7 +2,6 @@ import numpy as np
 
 BT_MIN = 0.0
 BT_MAX = 320.0
-WS_ABS_MAX = 50.0
 WS_MIN = 0.0
 WS_MAX = 20.0
 LON_ABS_MAX = 180.0
@@ -30,12 +29,6 @@ class QaProcessor():
 
             if "brightness_temperature" in variable_name:
                 local_mask = (variable_data <= BT_MIN) | (variable_data >= BT_MAX)
-                flag_array = np.logical_or(flag_array, local_mask)
-                continue
-
-            # @todo 3 tb/tb remove this? seems to be redundant tb 2017-11-27
-            if "wind_component" in variable_name:
-                local_mask = np.absolute(variable_data) > WS_ABS_MAX
                 flag_array = np.logical_or(flag_array, local_mask)
                 continue
 

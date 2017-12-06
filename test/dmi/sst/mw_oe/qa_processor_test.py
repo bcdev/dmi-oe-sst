@@ -11,7 +11,6 @@ NUM_MATCHES = 3
 
 
 class QaProcessorTest(unittest.TestCase):
-
     dataset = None
     qa_processor = None
 
@@ -79,32 +78,6 @@ class QaProcessorTest(unittest.TestCase):
 
         self.assertTrue(self.dataset["invalid_data"].data[0])
         self.assertFalse(self.dataset["invalid_data"].data[1])
-        self.assertTrue(self.dataset["invalid_data"].data[2])
-
-    def test_run_qa_general_wind_speed_pass(self):
-        data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
-        data[0] = 11.8
-        data[1] = -12.7
-        data[2] = 8.445
-        self.dataset["amsre.nwp.10m_east_wind_component"] = Variable(["matchup_count"], data)
-
-        self.qa_processor.run_qa_general(self.dataset)
-
-        self.assertFalse(self.dataset["invalid_data"].data[0])
-        self.assertFalse(self.dataset["invalid_data"].data[1])
-        self.assertFalse(self.dataset["invalid_data"].data[2])
-
-    def test_run_qa_general_wind_speed_fail(self):
-        data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
-        data[0] = 11.8
-        data[1] = -52.7
-        data[2] = 108.445
-        self.dataset["amsre.nwp.10m_north_wind_component"] = Variable(["matchup_count"], data)
-
-        self.qa_processor.run_qa_general(self.dataset)
-
-        self.assertFalse(self.dataset["invalid_data"].data[0])
-        self.assertTrue(self.dataset["invalid_data"].data[1])
         self.assertTrue(self.dataset["invalid_data"].data[2])
 
     def test_run_qa_general_longitude_pass(self):
@@ -242,8 +215,8 @@ class QaProcessorTest(unittest.TestCase):
         data[0] = 10.9
         data[1] = 20.7
         data[2] = 30.445
-        self.dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], data)        
-        self.dataset["amsre.brightness_temperature23V"] = Variable(["matchup_count"], data)        
+        self.dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], data)
+        self.dataset["amsre.brightness_temperature23V"] = Variable(["matchup_count"], data)
         self.dataset["amsre.brightness_temperature36V"] = Variable(["matchup_count"], data)
 
         data = DefaultData.create_default_vector(3, np.float32, fill_value=0)
