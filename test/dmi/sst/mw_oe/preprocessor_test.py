@@ -157,9 +157,9 @@ class PreprocessorTest(unittest.TestCase):
         prep_data = self.preprocessor.run(self.dataset)
         variable = prep_data.variables["amsre.nwp.total_column_liquid_water"]
         self.assertEqual((11,), variable.shape)
-        self.assertAlmostEqual(0.064784832, variable.data[0], 8)
-        self.assertAlmostEqual(0.059696469, variable.data[1], 8)
-        self.assertAlmostEqual(0.028990047, variable.data[2], 8)
+        self.assertAlmostEqual(0.064784802, variable.data[0], 8)
+        self.assertAlmostEqual(0.059696566, variable.data[1], 8)
+        self.assertAlmostEqual(0.028990015, variable.data[2], 8)
 
     def test_run_windspeed(self):
         data = DefaultData.create_default_array_3d(3, 3, 11, np.float32, fill_value=np.NaN)
