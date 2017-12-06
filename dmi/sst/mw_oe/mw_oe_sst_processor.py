@@ -36,9 +36,17 @@ class MwOeSstProcessor:
         qa_processor.run_qa(pre_proc_mmd_data, flag_coding)
 
         results = self._create_result_structure(matchup_count, 5, 6)
-
+        self.add_flags_variable(flag_coding, results)
+        
         self._write_result_data(cmd_line_args.o[0], input_file, results)
         mmd_reader.close()
+
+    def add_flags_variable(self, flag_coding, results):
+        flags = flag_coding.get_flags()
+        variable = Variable(["matchup"], flags)
+        variable.attrs["flag_masks"] = flag_coding.get_flag_masks()
+        variable.attrs["flag_meanings"] = flag_coding.get_flag_meanings()
+        results["flags"] = variable
 
     def _write_result_data(self, output_dir, input_file, results):
         target_file_name = self._create_target_file_name(input_file)

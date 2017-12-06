@@ -26,7 +26,7 @@ class FlagCoding():
     BT_POL_TEST_FAILED = 128
 
     def __init__(self, num_samples):
-        self.flags = np.zeros(num_samples, dtype=np.uint16)
+        self.flags = np.zeros(num_samples, dtype=np.int16)
 
     def get_flags(self):
         return self.flags
