@@ -17,6 +17,7 @@ class Preprocessor:
                                "amsre.satellite_azimuth_angle", "amsre.Geostationary_Reflection_Latitude", "amsre.Geostationary_Reflection_Longitude", "amsre.latitude", "amsre.longitude"]
     WIND_SPEED_VARIABLES = ["amsre.nwp.10m_east_wind_component", "amsre.nwp.10m_north_wind_component"]
     NWP_SST_VARIABLES = ["amsre.nwp.sea_surface_temperature"]
+    FILENAME_VARIABLES = ["amsre.l2a_filename"]
 
     AVERAGING_LENGTH = 5  # @todo 3 tb/tb this can be a parameter to the processor 2017-11-17
     INV_GRAVITY_CONST = 1.0 / 9.80665  # s^2/m
@@ -42,8 +43,12 @@ class Preprocessor:
                 self.process_wind_speed(dataset, preprocessed_data)
                 continue
 
+            if variable_name in self.FILENAME_VARIABLES:
+                self.extract_ascending_descending(dataset, preprocessed_data, flag_coding)
+                continue
+
         self.calculate_TCLW(preprocessed_data)
-        
+
         return preprocessed_data
 
     def convert_temperature(self, preprocessed_data, variable_name):
@@ -92,7 +97,7 @@ class Preprocessor:
 
         if flag_coding is not None:
             flag_coding.add_avg_inv_thresh(invalid_data_array)
-            
+
         preprocessed_data[variable_name] = Variable(["matchup"], target_data)
 
     def extract_center_px(self, dataset, preprocessed_data, variable_name):
@@ -125,3 +130,23 @@ class Preprocessor:
         tclw_tmp = tclw_tmp * self.INV_GRAVITY_CONST
         tclw = np.sum(tclw_tmp, axis=1)
         preprocessed_data["amsre.nwp.total_column_liquid_water"] = Variable(["num_matchups"], tclw)
+
+    def extract_ascending_descending(self, dataset, preprocessed_data, flag_coding=None):
+        num_matchups = len(dataset.coords["matchup_count"])
+        ascending_data_array = np.zeros(num_matchups, dtype=np.bool)
+        invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
+
+        filename_data = dataset.variables["amsre.l2a_filename"].data
+        for i in range(0, num_matchups):
+            file_name = str(filename_data[i])
+            if "_A." in file_name:
+                ascending_data_array[i] = True
+            elif "_D." in file_name:
+                ascending_data_array[i] = False
+            else:
+                invalid_data_array[i] = True
+
+        if flag_coding is not None:
+            flag_coding.add_inv_filename(invalid_data_array)
+
+        preprocessed_data["amsre.ascending"] = Variable(["matchup"], ascending_data_array)

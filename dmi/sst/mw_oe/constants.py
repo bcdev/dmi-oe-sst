@@ -1,5 +1,6 @@
 INPUT_VARIABLES = ["amsre.latitude",                           # float, degrees north, fill: default               pre: extract_center
                    "amsre.longitude",                          # float, degrees east, fill: default                pre: extract_center
+                   "amsre.l2a_filename",                       # string                                            pre: extract ascending/descendin
                    # IS NOT USED "amsre.time",                 # double, s, TAI 1993 format, fill: default
                    "amsre.solar_zenith_angle",                 # float, degree, fill: default                      pre: extract_center
                    "amsre.satellite_zenith_angle",             # float, degree, fill: default                      pre: extract_center
@@ -28,6 +29,8 @@ INPUT_VARIABLES = ["amsre.latitude",                           # float, degrees 
                    "amsre.scan_data_quality",                  # int32, fill=-2147483647                           pre: extract_center
                    "amsre.Geostationary_Reflection_Latitude",  # float, degree, fill=-32767                        pre: extract_center
                    "amsre.Geostationary_Reflection_Longitude", # float, degree, fill=-32767                        pre: extract_center
+                   # @todo 1 tb/tb reactivate when MMD06c is reprocessed
+                   #"amsre.Sun_Glint_Angle"                     # float, degree, fill=-32767                        pre: extract_center
                    # IS NOT USED "amsre.nwp.seaice_fraction"   # float, fill=2E20
                    "amsre.nwp.sea_surface_temperature",        # float, Kelvin, fill=2E20                          pre: extract_center
                    "amsre.nwp.10m_east_wind_component",        # float, m/s, fill=2E20                             pre: extract_center

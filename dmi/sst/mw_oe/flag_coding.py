@@ -12,6 +12,7 @@ import numpy as np
 # sza_out_of_range      5   32      AMSR-E sun zenith angle out of valid range (0, 180)deg
 # sst_out_of_range      6   64      EraInterim NWP or in-situ SST values out of range (-2, 40)Celsius
 # bt_pol_test_failed    7   128     AMSR-E brightness temperature polarization test failed (BTv < BTh)
+# inv_file_name         8   256     AMSR-E filename in MMD is not following conventions, cannot extract ascending/descending infomation
 
 class FlagCoding():
     flags = None
@@ -24,6 +25,7 @@ class FlagCoding():
     SZA_OUT_OF_RANGE = 32
     SST_OUT_OF_RANGE = 64
     BT_POL_TEST_FAILED = 128
+    INV_FILE_NAME = 256
 
     def __init__(self, num_samples):
         self.flags = np.zeros(num_samples, dtype=np.int16)
@@ -33,11 +35,11 @@ class FlagCoding():
 
     @staticmethod
     def get_flag_masks():
-        return "1 2 4 8 16 32 64 128"
+        return "1 2 4 8 16 32 64 128 256"
 
     @staticmethod
     def get_flag_meanings():
-        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed"
+        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name"
 
     def add_avg_inv_thresh(self, tags):
         self._add_flag(tags, self.AVG_INV_THRESH)
@@ -62,6 +64,9 @@ class FlagCoding():
 
     def add_bt_pol_test_failed(self, tags):
         self._add_flag(tags, self.BT_POL_TEST_FAILED)
+
+    def add_inv_filename(self, tags):
+        self._add_flag(tags, self.INV_FILE_NAME)
 
     def _add_flag(self, tags, flag_value):
         self.flags = np.bitwise_or(self.flags, tags.astype(np.int16) * flag_value)

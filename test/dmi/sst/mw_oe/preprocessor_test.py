@@ -198,3 +198,44 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(5.3851647, variable.data[0], 7)
         self.assertAlmostEqual(6.7082038, variable.data[1], 7)
         self.assertAlmostEqual(8.0622578, variable.data[2], 7)
+
+    def test_extract_ascending_descending(self):
+        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111125_D.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
+        self.dataset["amsre.l2a_filename"] = Variable(["matchup_count"], data)
+
+        prep_data = self.preprocessor.run(self.dataset)
+        variable = prep_data.variables["amsre.ascending"]
+        self.assertFalse(variable.data[0])
+        self.assertFalse(variable.data[1])
+        self.assertTrue(variable.data[2])
+        self.assertTrue(variable.data[3])
+        self.assertFalse(variable.data[4])
+
+    def test_extract_ascending_descending_corrupt_filename(self):
+        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf",
+                "AMSR_E_ohlala_something_is_wrong_here.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
+        self.dataset["amsre.l2a_filename"] = Variable(["matchup_count"], data)
+
+        flag_coding = FlagCoding(5)
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
+
+        variable = prep_data.variables["amsre.ascending"]
+        self.assertFalse(variable.data[0])
+        self.assertFalse(variable.data[1])
+        self.assertTrue(variable.data[2])
+        self.assertTrue(variable.data[3])
+        self.assertFalse(variable.data[4])
+
+        flags = flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(256, flags[1])
+        self.assertEqual(0, flags[2])
+        self.assertEqual(0, flags[3])
+        self.assertEqual(0, flags[4])
