@@ -12,6 +12,8 @@ SZA_MIN = 0.0
 SZA_MAX = 180.0
 SST_MIN = -2.0
 SST_MAX = 40.0
+DIURNAL_WS_MAX = 4
+DIURNAL_SZA_MAX = 90
 
 
 class QaProcessor():
@@ -25,6 +27,7 @@ class QaProcessor():
         self.run_qa_general(dataset, flag_coding)
         self.run_qa_bt_delta(dataset, flag_coding)
         self.run_qa_rfi_detection(dataset, flag_coding)
+        self.run_qa_diurnal_warming(dataset, flag_coding)
 
     def run_qa_general(self, dataset, flag_coding):
         for variable_name in dataset.variables:
@@ -83,3 +86,10 @@ class QaProcessor():
 
     def run_qa_rfi_detection(self, dataset, flag_coding):
         self.rfi_pocessor.find_rfi(dataset, flag_coding)
+
+    def run_qa_diurnal_warming(self, dataset, flag_coding):
+        wind_speed = dataset["amsre.nwp.abs_wind_speed"].data
+        sza = dataset["amsre.solar_zenith_angle"].data
+        local_mask = (wind_speed < DIURNAL_WS_MAX) & (np.abs(sza) < DIURNAL_SZA_MAX)
+        flag_coding.add_diurnal_warming(local_mask)
+

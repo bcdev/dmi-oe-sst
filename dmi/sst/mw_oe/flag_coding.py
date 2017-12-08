@@ -14,6 +14,7 @@ import numpy as np
 # bt_pol_test_failed    7   128     AMSR-E brightness temperature polarization test failed (BTv < BTh)
 # inv_file_name         8   256     AMSR-E filename in MMD is not following conventions, cannot extract ascending/descending infomation
 # rfi_possible          9   512     Pixel is located in a RFI contaminated area
+# diurnal_warming       10  1024    Pixel is possibly affected by diurnal warming
 
 class FlagCoding():
     flags = None
@@ -28,6 +29,7 @@ class FlagCoding():
     BT_POL_TEST_FAILED = 128
     INV_FILE_NAME = 256
     RFI_POSSIBLE = 512
+    DIURNAL_WARMING = 1024
 
     def __init__(self, num_samples):
         self.flags = np.zeros(num_samples, dtype=np.int16)
@@ -37,11 +39,11 @@ class FlagCoding():
 
     @staticmethod
     def get_flag_masks():
-        return "1 2 4 8 16 32 64 128 256 512"
+        return "1 2 4 8 16 32 64 128 256 512 1024"
 
     @staticmethod
     def get_flag_meanings():
-        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible"
+        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming"
 
     def add_avg_inv_thresh(self, tags):
         self._add_flag(tags, self.AVG_INV_THRESH)
@@ -72,6 +74,9 @@ class FlagCoding():
 
     def add_rfi_possible(self, tags):
         self._add_flag(tags, self.RFI_POSSIBLE)
+
+    def add_diurnal_warming(self, tags):
+        self._add_flag(tags, self.DIURNAL_WARMING)
 
     def _add_flag(self, tags, flag_value):
         self.flags = np.bitwise_or(self.flags, tags.astype(np.int16) * flag_value)

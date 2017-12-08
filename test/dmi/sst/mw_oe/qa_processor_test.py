@@ -318,3 +318,31 @@ class QaProcessorTest(unittest.TestCase):
         self.assertEqual(0, flags[0])
         self.assertEqual(512, flags[1])
         self.assertEqual(512, flags[2])
+
+    def test_run_diurnal_warming_pass(self):
+        windspeed = [12.0, 6.0, 2.0]
+        self.dataset["amsre.nwp.abs_wind_speed"] = Variable(["matchup_count"], windspeed)
+
+        windspeed = [25.0, 94.0, 108.0]
+        self.dataset["amsre.solar_zenith_angle"] = Variable(["matchup_count"], windspeed)
+
+        self.qa_processor.run_qa_diurnal_warming(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(0, flags[2])
+
+    def test_run_diurnal_warming_fail(self):
+        windspeed = [3.0, 6.0, 2.0]
+        self.dataset["amsre.nwp.abs_wind_speed"] = Variable(["matchup_count"], windspeed)
+
+        windspeed = [25.0, 94.0, 87.0]
+        self.dataset["amsre.solar_zenith_angle"] = Variable(["matchup_count"], windspeed)
+
+        self.qa_processor.run_qa_diurnal_warming(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(1024, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(1024, flags[2])
