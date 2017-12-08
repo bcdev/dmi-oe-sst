@@ -14,10 +14,10 @@ SST_MIN = -2.0
 SST_MAX = 40.0
 DIURNAL_WS_MAX = 4
 DIURNAL_SZA_MAX = 90
+RAIN_BT_THRESHOLD = 240.0
 
 
 class QaProcessor():
-
     rfi_pocessor = None
 
     def __init__(self):
@@ -28,6 +28,7 @@ class QaProcessor():
         self.run_qa_bt_delta(dataset, flag_coding)
         self.run_qa_rfi_detection(dataset, flag_coding)
         self.run_qa_diurnal_warming(dataset, flag_coding)
+        self.run_qa_rain_detection(dataset, flag_coding)
 
     def run_qa_general(self, dataset, flag_coding):
         for variable_name in dataset.variables:
@@ -93,3 +94,7 @@ class QaProcessor():
         local_mask = (wind_speed < DIURNAL_WS_MAX) & (np.abs(sza) < DIURNAL_SZA_MAX)
         flag_coding.add_diurnal_warming(local_mask)
 
+    def run_qa_rain_detection(self, dataset, flag_coding):
+        bt_18 = dataset["amsre.brightness_temperature18V"].data
+        local_mask = (bt_18 >= RAIN_BT_THRESHOLD)
+        flag_coding.add_rain_possible(local_mask)

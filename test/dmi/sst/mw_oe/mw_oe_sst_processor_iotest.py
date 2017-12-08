@@ -57,9 +57,9 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertEqual(0, variable.data[0])
             self.assertEqual(514, variable.data[114])
             self.assertEqual(512, variable.data[157])
-            self.assertEqual("1 2 4 8 16 32 64 128 256 512 1024", variable.attrs["flag_masks"])
+            self.assertEqual("1 2 4 8 16 32 64 128 256 512 1024 2048", variable.attrs["flag_masks"])
             self.assertEqual(
-                "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming",
+                "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming rain_possible",
                 variable.attrs["flag_meanings"])
         finally:
             target_data.close()

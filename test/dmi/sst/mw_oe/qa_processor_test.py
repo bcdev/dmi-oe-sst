@@ -346,3 +346,25 @@ class QaProcessorTest(unittest.TestCase):
         self.assertEqual(1024, flags[0])
         self.assertEqual(0, flags[1])
         self.assertEqual(1024, flags[2])
+
+    def test_run_detect_rain_pass(self):
+        bt_18 = [189.0, 239.0, 107.0]
+        self.dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], bt_18)
+
+        self.qa_processor.run_qa_rain_detection(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(0, flags[2])
+
+    def test_run_detect_rain_fail(self):
+        bt_18 = [189.0, 241.0, 248.0]
+        self.dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], bt_18)
+
+        self.qa_processor.run_qa_rain_detection(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(2048, flags[1])
+        self.assertEqual(2048, flags[2])
