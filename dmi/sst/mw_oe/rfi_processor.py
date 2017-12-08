@@ -13,13 +13,14 @@ class RfiProcessor:
     num_reflected = len(xlon_reflected)
     num_ground = len(xlon_ground)
 
-    def find_rfi(self, dataset):
+    def find_rfi(self, dataset, flag_coding=None):
         sat_lon_data = dataset["amsre.longitude"].data
         sat_lat_data = dataset["amsre.latitude"].data
         geo_lon_data = dataset["amsre.Geostationary_Reflection_Longitude"].data
         geo_lat_data = dataset["amsre.Geostationary_Reflection_Latitude"].data
         asc_data = dataset["amsre.ascending"].data
-        flag_array = dataset["invalid_data"].data
+        num_matchups = len(dataset.coords["matchup_count"])
+        flag_array = np.zeros(num_matchups, dtype=np.bool)
 
         num_matchups = len(sat_lon_data)
 
@@ -54,4 +55,5 @@ class RfiProcessor:
                         flag_array[i] = True
                         break
 
-        dataset["invalid_data"].data = flag_array
+        if flag_coding is not None:
+            flag_coding.add_rfi_possible(flag_array)

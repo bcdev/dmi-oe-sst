@@ -1,9 +1,9 @@
 import unittest
 
-import numpy as np
 import xarray as xr
 from xarray import Variable
 
+from dmi.sst.mw_oe.flag_coding import FlagCoding
 from dmi.sst.mw_oe.rfi_processor import RfiProcessor
 
 NUM_MATCHES = 12
@@ -12,9 +12,6 @@ NUM_MATCHES = 12
 class RfiProcessorTest(unittest.TestCase):
     def setUp(self):
         self.dataset = xr.Dataset()
-
-        invalid_data_array = np.zeros(NUM_MATCHES, dtype=np.bool)
-        self.dataset["invalid_data"] = Variable(["matchup_count"], invalid_data_array)
 
     def test_find_rfi(self):
         sat_lon = [128.6643, -171.7969, -80.4683, -19.5940, -19.2279, 166.5237, -2.9735, -174.1847, 174.9277, 171.3845, 171.3845, 6.0]
@@ -32,12 +29,13 @@ class RfiProcessorTest(unittest.TestCase):
         i_asc = [1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]
         self.dataset["amsre.ascending"] = Variable(["matchup_count"], i_asc)
 
+        flag_coding = FlagCoding(12)
         rfi_processor = RfiProcessor()
-        rfi_processor.find_rfi(self.dataset)
+        rfi_processor.find_rfi(self.dataset, flag_coding)
 
-        flags = self.dataset["invalid_data"].data
+        flags = flag_coding.get_flags()
         for i in range(0, 9):
-            self.assertFalse(flags[i])
+            self.assertEqual(0, flags[i])
 
-        self.assertTrue(flags[10])
-        self.assertTrue(flags[11])
+        self.assertEqual(512, flags[10])
+        self.assertEqual(512, flags[11])

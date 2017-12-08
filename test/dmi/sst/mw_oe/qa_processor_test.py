@@ -272,3 +272,49 @@ class QaProcessorTest(unittest.TestCase):
         self.assertEqual(128, flags[0])
         self.assertEqual(0, flags[1])
         self.assertEqual(128, flags[2])
+
+    def test_run_rfi_detection_pass(self):
+        sat_lon = [129.6, -172.8, -81.4]
+        self.dataset["amsre.longitude"] = Variable(["matchup_count"], sat_lon)
+
+        sat_lat = [25.1, 35.4, -19.7]
+        self.dataset["amsre.latitude"] = Variable(["matchup_count"], sat_lat)
+
+        geo_refl_lon = [76.0, -112.3, -113.0]
+        self.dataset["amsre.Geostationary_Reflection_Longitude"] = Variable(["matchup_count"], geo_refl_lon)
+
+        geo_refl_lat = [24.1, 78.4, -62.5]
+        self.dataset["amsre.Geostationary_Reflection_Latitude"] = Variable(["matchup_count"], geo_refl_lat)
+
+        i_asc = [1, 1, 0]
+        self.dataset["amsre.ascending"] = Variable(["matchup_count"], i_asc)
+
+        self.qa_processor.run_qa_rfi_detection(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(0, flags[2])
+
+    def test_run_rfi_detection_fail(self):
+        sat_lon = [172.4, 172.4, 6.0]
+        self.dataset["amsre.longitude"] = Variable(["matchup_count"], sat_lon)
+
+        sat_lat = [-16.1, -16.1, 64.0]
+        self.dataset["amsre.latitude"] = Variable(["matchup_count"], sat_lat)
+
+        geo_refl_lon = [-171.3, 236.0, -171.3]
+        self.dataset["amsre.Geostationary_Reflection_Longitude"] = Variable(["matchup_count"], geo_refl_lon)
+
+        geo_refl_lat = [29.4, -20.3, 29.4]
+        self.dataset["amsre.Geostationary_Reflection_Latitude"] = Variable(["matchup_count"], geo_refl_lat)
+
+        i_asc = [1, 0, 0]
+        self.dataset["amsre.ascending"] = Variable(["matchup_count"], i_asc)
+
+        self.qa_processor.run_qa_rfi_detection(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(512, flags[1])
+        self.assertEqual(512, flags[2])

@@ -1,5 +1,7 @@
 import numpy as np
 
+from dmi.sst.mw_oe.rfi_processor import RfiProcessor
+
 BT_MIN = 0.0
 BT_MAX = 320.0
 WS_MIN = 0.0
@@ -13,9 +15,16 @@ SST_MAX = 40.0
 
 
 class QaProcessor():
+
+    rfi_pocessor = None
+
+    def __init__(self):
+        self.rfi_pocessor = RfiProcessor()
+
     def run_qa(self, dataset, flag_coding):
         self.run_qa_general(dataset, flag_coding)
         self.run_qa_bt_delta(dataset, flag_coding)
+        self.run_qa_rfi_detection(dataset, flag_coding)
 
     def run_qa_general(self, dataset, flag_coding):
         for variable_name in dataset.variables:
@@ -57,8 +66,6 @@ class QaProcessor():
                 continue
 
     def run_qa_bt_delta(self, dataset, flag_coding):
-        # flag_array = dataset["invalid_data"].data
-
         data_18V = dataset["amsre.brightness_temperature18V"].data
         data_18H = dataset["amsre.brightness_temperature18H"].data
         local_mask = (data_18V < data_18H)
@@ -73,3 +80,6 @@ class QaProcessor():
         data_36H = dataset["amsre.brightness_temperature36H"].data
         local_mask = (data_36V < data_36H)
         flag_coding.add_bt_pol_test_failed(local_mask)
+
+    def run_qa_rfi_detection(self, dataset, flag_coding):
+        self.rfi_pocessor.find_rfi(dataset, flag_coding)

@@ -16,11 +16,11 @@ class FlagCodingTest(unittest.TestCase):
 
     def test_get_flag_masks(self):
         masks = FlagCoding.get_flag_masks()
-        self.assertEqual("1 2 4 8 16 32 64 128 256", masks)
+        self.assertEqual("1 2 4 8 16 32 64 128 256 512", masks)
 
     def test_get_flag_meanings(self):
         masks = FlagCoding.get_flag_meanings()
-        self.assertEqual("avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name", masks)
+        self.assertEqual("avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible", masks)
 
     def test_get_flags_initial(self):
         flags = self.flag_coding.get_flags()
@@ -145,3 +145,18 @@ class FlagCodingTest(unittest.TestCase):
         self.assertEqual(0, flags[9])
         self.assertEqual(256, flags[13])
         self.assertEqual(256, flags[27])
+
+    def test_add_rfi_possible(self):
+        tags = np.zeros(NUM_SAMPLES, dtype=np.bool)
+        tags[14] = True
+        tags[28] = True
+
+        self.flag_coding.add_rfi_possible(tags)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[9])
+        self.assertEqual(0, flags[10])
+        self.assertEqual(512, flags[14])
+        self.assertEqual(512, flags[28])
+
+    # @todo 2 tb/tb add tests for flag combinations 2017-12-08
