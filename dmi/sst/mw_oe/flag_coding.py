@@ -31,6 +31,7 @@ class FlagCoding():
     RFI_POSSIBLE = 512
     DIURNAL_WARMING = 1024
     RAIN_POSSIBLE = 2048
+    STDDEV_TOO_HIGH = 4096
 
     def __init__(self, num_samples):
         self.flags = np.zeros(num_samples, dtype=np.int16)
@@ -40,11 +41,11 @@ class FlagCoding():
 
     @staticmethod
     def get_flag_masks():
-        return "1,2,4,8,16,32,64,128,256,512,1024,2048"
+        return "1,2,4,8,16,32,64,128,256,512,1024,2048,4096"
 
     @staticmethod
     def get_flag_meanings():
-        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming rain_possible"
+        return "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming rain_possible std_dev_too_high"
 
     def add_avg_inv_thresh(self, tags):
         self._add_flag(tags, self.AVG_INV_THRESH)
@@ -81,6 +82,9 @@ class FlagCoding():
 
     def add_rain_possible(self, tags):
         self._add_flag(tags, self.RAIN_POSSIBLE)
+
+    def add_stddev_too_high(self, tags):
+        self._add_flag(tags, self.STDDEV_TOO_HIGH)
 
     def _add_flag(self, tags, flag_value):
         self.flags = np.bitwise_or(self.flags, tags.astype(np.int16) * flag_value)

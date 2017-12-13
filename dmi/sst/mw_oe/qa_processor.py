@@ -26,6 +26,7 @@ class QaProcessor():
     def run_qa(self, dataset, flag_coding):
         self.run_qa_general(dataset, flag_coding)
         self.run_qa_bt_delta(dataset, flag_coding)
+        self.run_qa_bt_stddev(dataset, flag_coding)
         self.run_qa_rfi_detection(dataset, flag_coding)
         self.run_qa_diurnal_warming(dataset, flag_coding)
         self.run_qa_rain_detection(dataset, flag_coding)
@@ -84,6 +85,23 @@ class QaProcessor():
         data_36H = dataset["amsre.brightness_temperature36H"].data
         local_mask = (data_36V < data_36H)
         flag_coding.add_bt_pol_test_failed(local_mask)
+
+    def run_qa_bt_stddev(self, dataset, flag_coding):
+        data_23V_stddev = dataset["amsre.brightness_temperature23V_stddev"].data
+        local_mask = data_23V_stddev > 55.0
+        flag_coding.add_stddev_too_high(local_mask)
+
+        data_23H_stddev = dataset["amsre.brightness_temperature23H_stddev"].data
+        local_mask = data_23H_stddev > 35.0
+        flag_coding.add_stddev_too_high(local_mask)
+
+        data_36V_stddev = dataset["amsre.brightness_temperature36V_stddev"].data
+        local_mask = data_36V_stddev > 25.0
+        flag_coding.add_stddev_too_high(local_mask)
+
+        data_36H_stddev = dataset["amsre.brightness_temperature36H_stddev"].data
+        local_mask = data_36H_stddev > 25.0
+        flag_coding.add_stddev_too_high(local_mask)
 
     def run_qa_rfi_detection(self, dataset, flag_coding):
         self.rfi_pocessor.find_rfi(dataset, flag_coding)

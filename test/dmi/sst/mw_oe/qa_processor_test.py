@@ -368,3 +368,37 @@ class QaProcessorTest(unittest.TestCase):
         self.assertEqual(0, flags[0])
         self.assertEqual(2048, flags[1])
         self.assertEqual(2048, flags[2])
+
+    def test_run_check_stddev_pass(self):
+        bt_23_V = [36.0, 18.1, 22.0]  # threshold: 55
+        self.dataset["amsre.brightness_temperature23V_stddev"] = Variable(["matchup_count"], bt_23_V)
+        bt_23_H = [34.8, 18.1, 22.0]  # threshold: 35
+        self.dataset["amsre.brightness_temperature23H_stddev"] = Variable(["matchup_count"], bt_23_H)
+        bt_36_V = [24.0, 18.1, 22.0]  # threshold: 25
+        self.dataset["amsre.brightness_temperature36V_stddev"] = Variable(["matchup_count"], bt_36_V)
+        bt_36_H = [24.0, 18.1, 22.0]  # threshold: 25
+        self.dataset["amsre.brightness_temperature36H_stddev"] = Variable(["matchup_count"], bt_36_H)
+
+        self.qa_processor.run_qa_bt_stddev(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(0, flags[2])
+
+    def test_run_check_stddev_fail(self):
+        bt_23_V = [56.0, 18.1, 22.0]  # threshold: 55
+        self.dataset["amsre.brightness_temperature23V_stddev"] = Variable(["matchup_count"], bt_23_V)
+        bt_23_H = [34.8, 18.1, 22.0]  # threshold: 35
+        self.dataset["amsre.brightness_temperature23H_stddev"] = Variable(["matchup_count"], bt_23_H)
+        bt_36_V = [24.0, 18.1, 22.0]  # threshold: 25
+        self.dataset["amsre.brightness_temperature36V_stddev"] = Variable(["matchup_count"], bt_36_V)
+        bt_36_H = [24.0, 18.1, 26.0]  # threshold: 25
+        self.dataset["amsre.brightness_temperature36H_stddev"] = Variable(["matchup_count"], bt_36_H)
+
+        self.qa_processor.run_qa_bt_stddev(self.dataset, self.flag_coding)
+
+        flags = self.flag_coding.get_flags()
+        self.assertEqual(4096, flags[0])
+        self.assertEqual(0, flags[1])
+        self.assertEqual(4096, flags[2])

@@ -54,12 +54,13 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertIsNotNone(target_data["ite_index"])
 
             variable = target_data["flags"]
-            self.assertEqual(0, variable.data[0])
+            self.assertEqual(4096, variable.data[0])
             self.assertEqual(514, variable.data[114])
+            self.assertEqual(0, variable.data[118])
             self.assertEqual(512, variable.data[157])
-            self.assertEqual("1,2,4,8,16,32,64,128,256,512,1024,2048", variable.attrs["flag_masks"])
+            self.assertEqual("1,2,4,8,16,32,64,128,256,512,1024,2048,4096", variable.attrs["flag_masks"])
             self.assertEqual(
-                "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming rain_possible",
+                "avg_inv_thresh amsre_flag bt_out_of_range ws_out_of_range inv_geolocation sza_out_of_range sst_out_of_range bt_pol_test_failed inv_file_name rfi_possible diurnal_warming rain_possible std_dev_too_high",
                 variable.attrs["flag_meanings"])
         finally:
             target_data.close()
