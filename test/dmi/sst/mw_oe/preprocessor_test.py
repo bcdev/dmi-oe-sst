@@ -239,3 +239,75 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual(0, flags[2])
         self.assertEqual(0, flags[3])
         self.assertEqual(0, flags[4])
+
+    def test_run_stddev_variables(self):
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
+        for x in range(0,21):
+            for y in range(0,21):
+                data[:, y, x] = x+y
+                
+        variable = Variable(["matchup_count", "ny", "nx"], data)
+        variable.attrs["_FillValue"] = -79
+        self.dataset["amsre.brightness_temperature23V"] = variable
+
+        flag_coding = FlagCoding(5)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
+        variable = prep_data.variables["amsre.brightness_temperature23V_stddev"]
+
+        self.assertEqual((5,), variable.shape)
+        self.assertAlmostEqual(8.563488, variable.data[0], 7)
+
+        flags = flag_coding.get_flags()
+        self.assertEqual(0, flags[0])
+
+    def test_run_stddev_variables_masks_fill_value(self):
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
+        for x in range(0,21):
+            for y in range(0,21):
+                data[:, y, x] = x+y
+
+        data[:, 1, 1] = -80
+        data[:, 10, 10] = -80
+        data[:, 15, 15] = -80
+        data[:, 20, 20] = -80
+        variable = Variable(["matchup_count", "ny", "nx"], data)
+        variable.attrs["_FillValue"] = -80
+        self.dataset["amsre.brightness_temperature23H"] = variable
+
+        flag_coding = FlagCoding(5)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
+        variable = prep_data.variables["amsre.brightness_temperature23H_stddev"]
+
+        self.assertEqual((5,), variable.shape)
+        self.assertAlmostEqual(8.4922457, variable.data[1], 7)
+
+        flags = flag_coding.get_flags()
+        self.assertEqual(0, flags[1])
+
+    def test_run_stddev_variables_too_many_fill_values(self):
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
+        for x in range(0,21):
+            for y in range(0,21):
+                data[:, y, x] = x+y
+
+        data[1, :, 1] = -81
+        data[1, :, 2] = -81
+        data[1, :, 5] = -81
+        variable = Variable(["matchup_count", "ny", "nx"], data)
+        variable.attrs["_FillValue"] = -81
+        self.dataset["amsre.brightness_temperature36V"] = variable
+
+        flag_coding = FlagCoding(5)
+
+        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
+        variable = prep_data.variables["amsre.brightness_temperature36V_stddev"]
+
+        self.assertEqual((5,), variable.shape)
+        self.assertAlmostEqual(8.563488, variable.data[0], 7)
+        self.assertAlmostEqual(-81, variable.data[1], 7)
+        self.assertAlmostEqual(8.563488, variable.data[2], 7)
+
+        flags = flag_coding.get_flags()
+        self.assertEqual(1, flags[1])
