@@ -23,6 +23,7 @@ class Preprocessor:
     AVERAGING_LENGTH = 5  # @todo 3 tb/tb this can be a parameter to the processor 2017-11-17
     STDDEV_LENGTH = 21  # @todo 3 tb/tb this can be a parameter to the processor 2017-12-13
     INV_GRAVITY_CONST = 1.0 / 9.80665  # s^2/m
+    SST_NWP_BIAS = -0.05
 
     def run(self, dataset, flag_coding=None):
         preprocessed_data = xr.Dataset()
@@ -41,6 +42,7 @@ class Preprocessor:
             if variable_name in self.TO_CENTER_EXTRACT_NAMES:
                 self.extract_center_px(dataset, preprocessed_data, variable_name)
                 self.convert_temperature(preprocessed_data, variable_name)
+                self.apply_sst_nwp_bias(preprocessed_data, variable_name)
                 continue
 
             if variable_name in self.WIND_SPEED_VARIABLES:
@@ -59,6 +61,12 @@ class Preprocessor:
         if variable_name in self.NWP_SST_VARIABLES:
             sst_data = preprocessed_data[variable_name].data
             sst_data = sst_data - 271.15
+            preprocessed_data[variable_name] = Variable(["matchup"], sst_data)
+
+    def apply_sst_nwp_bias(self, preprocessed_data, variable_name):
+        if variable_name in self.NWP_SST_VARIABLES:
+            sst_data = preprocessed_data[variable_name].data
+            sst_data = sst_data + self.SST_NWP_BIAS
             preprocessed_data[variable_name] = Variable(["matchup"], sst_data)
 
     def process_wind_speed(self, dataset, preprocessed_data):
