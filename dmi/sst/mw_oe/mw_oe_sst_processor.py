@@ -5,6 +5,7 @@ import numpy as np
 import xarray as xr
 from xarray import Variable
 
+from dmi.sst.mw_oe.bt_bias_correction import BtBiasCorrection
 from dmi.sst.mw_oe.flag_coding import FlagCoding
 from dmi.sst.mw_oe.mmd_reader import MmdReader
 from dmi.sst.mw_oe.preprocessor import Preprocessor
@@ -34,6 +35,9 @@ class MwOeSstProcessor:
 
         qa_processor = QaProcessor()
         qa_processor.run_qa(pre_proc_mmd_data, flag_coding)
+
+        bt_bias_correction = BtBiasCorrection()
+        bt_bias_correction.run(pre_proc_mmd_data)
 
         results = self._create_result_structure(matchup_count, 5, 6)
         self.add_flags_variable(flag_coding, results)
