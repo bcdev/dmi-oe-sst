@@ -10,11 +10,15 @@ from dmi.sst.mw_oe.flag_coding import FlagCoding
 from dmi.sst.mw_oe.mmd_reader import MmdReader
 from dmi.sst.mw_oe.preprocessor import Preprocessor
 from dmi.sst.mw_oe.qa_processor import QaProcessor
+from dmi.sst.mw_oe.retrieval import Retrieval
 from dmi.sst.util.default_data import DefaultData
+
+NUM_BT = 10
+MAX_ITERATIONS = 5
 
 
 class MwOeSstProcessor:
-    _version = "0.0.3"
+    _version = "0.0.4"
 
     KERNEL_SIZE = 4
 
@@ -39,9 +43,13 @@ class MwOeSstProcessor:
         bt_bias_correction = BtBiasCorrection()
         bt_bias_correction.run(pre_proc_mmd_data)
 
-        results = self._create_result_structure(matchup_count, 5, 6)
+        results = self._create_result_structure(matchup_count, MAX_ITERATIONS, NUM_BT)
+
+        retrieval = Retrieval()
+        retrieval.run(pre_proc_mmd_data, results, flag_coding)
+
         self.add_flags_variable(flag_coding, results)
-        
+
         self._write_result_data(cmd_line_args.o[0], input_file, results)
         mmd_reader.close()
 
@@ -61,7 +69,7 @@ class MwOeSstProcessor:
         for var_name in results.data_vars:
             var_encoding = dict(comp)
             var_encoding.update(results[var_name].encoding)
-            encoding.update({var_name : var_encoding})
+            encoding.update({var_name: var_encoding})
 
         results.to_netcdf(target_path, format='netCDF4', engine='netcdf4', encoding=encoding)
 
@@ -192,4 +200,3 @@ class MwOeSstProcessor:
         (head, file_name) = os.path.split(test_mmd)
         (prefix, extension) = os.path.splitext(file_name)
         return prefix + "_oe-sst" + extension
-
