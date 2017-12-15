@@ -46,7 +46,7 @@ class Preprocessor:
                 continue
 
             if variable_name in self.WIND_SPEED_VARIABLES:
-                self.process_wind_speed(dataset, preprocessed_data)
+                self.process_wind_speed_and_relative_angle(dataset, preprocessed_data)
                 continue
 
             if variable_name in self.FILENAME_VARIABLES:
@@ -69,13 +69,23 @@ class Preprocessor:
             sst_data = sst_data + self.SST_NWP_BIAS
             preprocessed_data[variable_name] = Variable(["matchup"], sst_data)
 
-    def process_wind_speed(self, dataset, preprocessed_data):
+    def process_wind_speed_and_relative_angle(self, dataset, preprocessed_data):
         self.extract_center_px(dataset, preprocessed_data, self.WIND_SPEED_VARIABLES[0])
         self.extract_center_px(dataset, preprocessed_data, self.WIND_SPEED_VARIABLES[1])
         east_wind_data = preprocessed_data.variables[self.WIND_SPEED_VARIABLES[0]].data
         north_wind_data = preprocessed_data.variables[self.WIND_SPEED_VARIABLES[1]].data
+
         abs_wind_speed_data = np.sqrt(np.square(east_wind_data) + np.square(north_wind_data))
         preprocessed_data["amsre.nwp.abs_wind_speed"] = Variable(["matchup"], abs_wind_speed_data)
+
+        num_matchups = len(dataset.coords["matchup_count"])
+        self.extract_center_px(dataset, preprocessed_data, "amsre.satellite_azimuth_angle")
+        target_data = DefaultData.create_default_vector(num_matchups, np.float32, fill_value=np.NaN)
+        phi_sat = preprocessed_data.variables["amsre.satellite_azimuth_angle"].data
+        for i in range(0, num_matchups):
+            target_data[i] = self.calculate_relative_angle(phi_sat[i], north_wind_data[i], east_wind_data[i])
+
+        preprocessed_data["relative_angle"] = Variable(["matchup"], target_data)
 
     def average_subset(self, dataset, preprocessed_data, variable_name, flag_coding=None):
         num_matchups = len(dataset.coords["matchup_count"])
@@ -145,7 +155,7 @@ class Preprocessor:
 
         if flag_coding is not None:
             flag_coding.add_avg_inv_thresh(invalid_data_array)
-            
+
         preprocessed_data[variable_name + "_stddev"] = Variable(["matchup"], target_data)
 
     def extract_center_px(self, dataset, preprocessed_data, variable_name):
@@ -198,3 +208,17 @@ class Preprocessor:
             flag_coding.add_inv_filename(invalid_data_array)
 
         preprocessed_data["amsre.ascending"] = Variable(["matchup"], ascending_data_array)
+
+    def calculate_relative_angle(self, phi_sat, north_wind, east_wind):
+        if phi_sat < 0.0:
+            phi_sat = phi_sat + 360.0
+
+        phi_w = 90.0 - np.arctan2(north_wind, east_wind)
+        if phi_w < 0.0:
+            phi_w = phi_w + 360.0
+
+        phi_rel = phi_sat - phi_w
+        if phi_rel < 0.0:
+            phi_rel = phi_rel + 360.0
+
+        return phi_rel

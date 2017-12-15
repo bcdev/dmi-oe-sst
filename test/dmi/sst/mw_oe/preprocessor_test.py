@@ -179,7 +179,7 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(0.059696566, variable.data[1], 8)
         self.assertAlmostEqual(0.028990015, variable.data[2], 8)
 
-    def test_run_windspeed(self):
+    def test_run_windspeed_and_relative_angle(self):
         data = DefaultData.create_default_array_3d(3, 3, 11, np.float32, fill_value=np.NaN)
         data[0, :, :] = 2
         data[1, :, :] = 3
@@ -192,12 +192,25 @@ class PreprocessorTest(unittest.TestCase):
         data[2, :, :] = 7
         self.dataset["amsre.nwp.10m_north_wind_component"] = Variable(["matchup_count", "ny", "nx"], data)
 
+        data = DefaultData.create_default_array_3d(3, 3, 11, np.float32, fill_value=np.NaN)
+        data[0, :, :] = 8
+        data[1, :, :] = 9
+        data[2, :, :] = 10
+        self.dataset["amsre.satellite_azimuth_angle"] = Variable(["matchup_count", "ny", "nx"], data)
+
         prep_data = self.preprocessor.run(self.dataset)
+
         variable = prep_data.variables["amsre.nwp.abs_wind_speed"]
         self.assertEqual((11,), variable.shape)
         self.assertAlmostEqual(5.3851647, variable.data[0], 7)
         self.assertAlmostEqual(6.7082038, variable.data[1], 7)
         self.assertAlmostEqual(8.0622578, variable.data[2], 7)
+
+        variable = prep_data.variables["relative_angle"]
+        self.assertEqual((11,), variable.shape)
+        self.assertAlmostEqual(279.19028, variable.data[0], 5)
+        self.assertAlmostEqual(280.10715, variable.data[1], 5)
+        self.assertAlmostEqual(281.05164, variable.data[2], 5)
 
     def test_extract_ascending_descending(self):
         data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf",
@@ -311,3 +324,14 @@ class PreprocessorTest(unittest.TestCase):
 
         flags = flag_coding.get_flags()
         self.assertEqual(1, flags[1])
+
+    def test_calculate_rlative_angle(self):
+        phi_sat = np.float32([-79.92, 14.84, -160.4, -164.43, 10.1600, 132.75])
+        north_wind = np.float32([1.147087, 9.204754, 4.513235, -0.228445, 4.386336, -2.5637])
+        east_wind = np.float32([-5.89346, 0.18209, -2.37729, -7.10264, -5.17445, 10.23945])
+
+        expecetd = np.float32([193.0293607711792, 286.39101684093475, 111.65561056137085, 102.46056699752808, 282.59845, 42.504668653011322])
+
+        for i in range(0, len(phi_sat)):
+            phi_rel = self.preprocessor.calculate_relative_angle(phi_sat[i], north_wind[i], east_wind[i])
+            self.assertAlmostEqual(expecetd[i], phi_rel, 4)
