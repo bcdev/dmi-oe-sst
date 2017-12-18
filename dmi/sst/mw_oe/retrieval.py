@@ -17,9 +17,38 @@ class Retrieval:
     S_p_inv = None
     S_e_inv = None
 
+    eps = np.array([0.2, 0.1, 0.02, 0.25], dtype=np.float64)
+
     def __init__(self):
         self.S_p_inv = np.linalg.inv(self.S_p)
         self.S_e_inv = np.linalg.inv(self.S_e)
 
     def run(self, input, results, flag_coding):
-        pass
+        num_matchups = len(input.coords["matchup_count"])
+
+        ws = input["amsre.nwp.abs_wind_speed"].data
+        tcwv = input["amsre.nwp.total_column_water_vapour"].data
+        tclw = input["amsre.nwp.total_column_liquid_water"].data
+        sst = input["amsre.nwp.sea_surface_temperature"].data
+        sza = input["amsre.solar_zenith_angle"].data
+
+        flags = flag_coding.get_flags()
+        for i in range(0, num_matchups):
+            # check if matchup is already flagged, if so: next one
+            if flags[i] != 0:
+                continue
+
+            [p, p_0] = self.prepare_first_guess(ws[i], tcwv[i], tclw[i], sst[i], self.eps)
+
+            theta_d = np.float64(sza[i])
+            sss = np.float64(35.0)
+
+    def prepare_first_guess(self, ws, tcwv, tclw, sst, eps):
+        p = np.array([[ws - self.eps[0], ws + self.eps[0], ws],
+                      [tcwv - self.eps[1], tcwv + self.eps[1], tcwv],
+                      [tclw - self.eps[2], tclw + self.eps[2], tclw],
+                      [sst - self.eps[3], sst + self.eps[3], sst]], dtype=np.float64)
+
+        p_0 = p[:, 2]
+
+        return [p, p_0]
