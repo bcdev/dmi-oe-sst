@@ -44,3 +44,7 @@ class FwModelTest(unittest.TestCase):
         self.assertAlmostEqual(301.14977223818812, self.fw_model.calc_T_V(47.3), 8)
         self.assertAlmostEqual(301.08790967395691, self.fw_model.calc_T_V(46.1), 8)
         self.assertAlmostEqual(301.16, self.fw_model.calc_T_V(51.2), 8)
+
+    def test_calc_sig_TS_TV(self):
+        self.assertAlmostEqual(0.545876967999981, self.fw_model.calc_sig_TS_TV(301.68, 301.16), 8)
+        self.assertAlmostEqual(14.0, self.fw_model.calc_sig_TS_TV(321.68, 301.16), 8)
