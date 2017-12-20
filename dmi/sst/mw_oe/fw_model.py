@@ -225,7 +225,9 @@ class FwModel:
         # Forward model bias correction
         # -----------------------------
         for i in range(0, 10):
-            T_B[i] =  T_B[i] + self.COEFFS[i, 0] + self.COEFFS[i, 1] * t_ow + self.COEFFS[i, 2] * t_ow_sq + self.COEFFS[i, 3] * W + self.COEFFS[i, 4] * W * W + self.COEFFS[i, 5] * np.cos(phi_rr) + self.COEFFS[i, 6] * np.sin(phi_rr) + self.COEFFS[i, 7] * np.cos(phi_rr * 0.5) + self.COEFFS[i, 8] * np.sin(phi_rr * 0.5) + self.COEFFS[i, 9] * np.cos(phi_rr / 3.0) + self.COEFFS[i, 10] * np.sin(phi_rr / 3.0) + self.COEFFS[i, 11] * np.cos(phi_rr * 0.25) + self.COEFFS[i, 12] * np.sin(phi_rr * 0.25)
+            T_B[i] = T_B[i] + self.COEFFS[i, 0] + self.COEFFS[i, 1] * t_ow + self.COEFFS[i, 2] * t_ow_sq + self.COEFFS[i, 3] * W + self.COEFFS[i, 4] * W * W + self.COEFFS[i, 5] * np.cos(phi_rr) + \
+                     self.COEFFS[i, 6] * np.sin(phi_rr) + self.COEFFS[i, 7] * np.cos(phi_rr * 0.5) + self.COEFFS[i, 8] * np.sin(phi_rr * 0.5) + self.COEFFS[i, 9] * np.cos(phi_rr / 3.0) + self.COEFFS[
+                         i, 10] * np.sin(phi_rr / 3.0) + self.COEFFS[i, 11] * np.cos(phi_rr * 0.25) + self.COEFFS[i, 12] * np.sin(phi_rr * 0.25)
 
         return T_B
 
@@ -298,7 +300,7 @@ class FwModel:
 
         delta_S2[4] = 5.22e-3 * W
 
-        for i in range(0, 4):
+        for i in range(0, 5):
             if delta_S2[i] > 0.069:
                 delta_S2[i] = 0.069
 
