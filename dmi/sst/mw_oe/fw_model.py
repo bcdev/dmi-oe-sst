@@ -162,7 +162,72 @@ class FwModel:
         # ------------------------------
         R_geoH = R_0H - (self.MC_GEO[:, 1] + self.MC_GEO[:, 3] * (theta_d - 53.0) + self.MC_GEO[:, 5] * (T_ow - 288.0) + self.MC_GEO[:, 7] * (theta_d - 53.0) * (T_ow - 288.0)) * W
         R_geoV = R_0V - (self.MC_GEO[:, 0] + self.MC_GEO[:, 2] * (theta_d - 53.0) + self.MC_GEO[:, 4] * (T_ow - 288.0) + self.MC_GEO[:, 6] * (theta_d - 53.0) * (T_ow - 288.0)) * W
-        # print(R_geoV)
+
+        F_H = self.calc_F_horizontal(W)
+        F_V = self.calc_F_vertical(W)
+
+        R_H = (1.0 - F_H) * R_geoH  # equation (49) Composite reflectivity for open water; horizontal pol
+        R_V = (1.0 - F_V) * R_geoV  # equation (49) Composite reflectivity for open water; vertical pol
+
+        E_H = 1.0 - R_H  # surface emissivity for open water; Horizontal pol.; Equation (8);
+        E_V = 1.0 - R_V  # Surface emissivity for open water; Vertical pol; Equation (8);
+
+        # Emissivity for mixed surface
+        E_eff_H = C_ow * E_H + C_FY * self.EMISSIVITY_FY_H + C_MY * self.EMISSIVITY_MY_H
+        E_eff_V = C_ow * E_V + C_FY * self.EMISSIVITY_FY_V + C_MY * self.EMISSIVITY_MY_V
+
+        # Reflection coefficient for mixed surface
+        R_eff_H = 1.0 - E_eff_H
+        R_eff_V = 1.0 - E_eff_V
+
+        # --------------------------------------------------
+        # Atmospheric Radiation Scattered by the Sea Surface
+        # --------------------------------------------------
+        Delta_S2 = self.create_Delta_S2(W)
+        term = Delta_S2 - 70 * np.power(Delta_S2, 3)  # Term for equation (62a+b)
+
+        OmegaH = (6.2 - 0.001 * np.square(37.0 - self.FREQ)) * term * np.square(tau)  # equation (62a); horizontal pol.
+        OmegaV = (2.5 + 0.018 * (37.0 - self.FREQ)) * term * np.power(tau, 3.4)  # equation (62b); vertical pol.
+
+        T_BOmegaH = ((1.0 + OmegaH) * (1.0 - tau) * (T_D - self.T_C) + self.T_C) * R_eff_H  # equation (61) horizontal pol.
+        T_BOmegaV = ((1.0 + OmegaV) * (1 - tau) * (T_D - self.T_C) + self.T_C) * R_eff_V  # equation (61) vertical pol.
+
+        # ------
+        # Output
+        # ------
+        T_BH_ow = E_H * T_ow  # Horizontal brightness temperature from open water
+        T_BV_ow = E_V * T_ow  # Vertical brightness temperature from open water
+
+        T_BH_overflade = C_ow * T_BH_ow + C_FY * T_BH_FY + C_MY * T_BH_MY  # Horizontal brightness temperature from mixed surface
+        T_BV_overflade = C_ow * T_BV_ow + C_FY * T_BV_FY + C_MY * T_BV_MY  # Vertical brightness temperature from mixed surface
+
+        # The result for the upwelling brightness temperature at the top of the
+        # atmosphere (i.e., the value observed by Earth-orbiting satellites)
+        T_BH = (T_BU + (tau * (T_BH_overflade + T_BOmegaH)))  # Equation (10); Horizontal pol.
+        T_BV = (T_BU + (tau * (T_BV_overflade + T_BOmegaV)))  # Equation (10); Vertical pol.
+
+        # ------------------------------
+        # sort output (exclude 53+89GHz)
+        # ------------------------------    
+        T_B = np.empty([10], dtype=np.float64)
+        T_B[0] = T_BV[0]
+        T_B[1] = T_BH[0]
+        T_B[2] = T_BV[1]
+        T_B[3] = T_BH[1]
+        T_B[4] = T_BV[2]
+        T_B[5] = T_BH[2]
+        T_B[6] = T_BV[3]
+        T_B[7] = T_BH[3]
+        T_B[8] = T_BV[4]
+        T_B[9] = T_BH[4]
+
+        # -----------------------------
+        # Forward model bias correction
+        # -----------------------------
+        for i in range(0, 10):
+            T_B[i] =  T_B[i] + self.COEFFS[i, 0] + self.COEFFS[i, 1] * t_ow + self.COEFFS[i, 2] * t_ow_sq + self.COEFFS[i, 3] * W + self.COEFFS[i, 4] * W * W + self.COEFFS[i, 5] * np.cos(phi_rr) + self.COEFFS[i, 6] * np.sin(phi_rr) + self.COEFFS[i, 7] * np.cos(phi_rr * 0.5) + self.COEFFS[i, 8] * np.sin(phi_rr * 0.5) + self.COEFFS[i, 9] * np.cos(phi_rr / 3.0) + self.COEFFS[i, 10] * np.sin(phi_rr / 3.0) + self.COEFFS[i, 11] * np.cos(phi_rr * 0.25) + self.COEFFS[i, 12] * np.sin(phi_rr * 0.25)
+
+        return T_B
 
     def clamp_to_0_1(self, param):
         if param < 0.0:
@@ -202,3 +267,39 @@ class FwModel:
         else:
             #  equation (27d)
             return np.sign(delta) * 14.0
+
+    def calc_F_horizontal(self, W):
+        W_1 = 7.0
+        W_2 = 12.0
+
+        if W < W_1:
+            return self.MC_M[:, 1] * W  # equation (60a)
+        elif (W >= W_1) & (W <= W_2):
+            return self.MC_M[:, 1] * W + 0.5 * (self.MC_M[:, 3] - self.MC_M[:, 1]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
+        else:
+            return self.MC_M[:, 3] * W - 0.5 * (self.MC_M[:, 3] - self.MC_M[:, 1]) * (W_2 + W_1)  # equation (60c)
+
+    def calc_F_vertical(self, W):
+        W_1 = 3.0
+        W_2 = 12.0
+
+        if W < W_1:
+            return self.MC_M[:, 0] * W  # equation (60a)
+        elif (W >= W_1) & (W <= W_2):
+            return self.MC_M[:, 0] * W + 0.5 * (self.MC_M[:, 2] - self.MC_M[:, 0]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
+        else:
+            return self.MC_M[:, 2] * W - 0.5 * (self.MC_M[:, 2] - self.MC_M[:, 0]) * (W_2 + W_1)  # equation (60c)
+
+    def create_Delta_S2(self, W):
+        delta_S2 = np.zeros([5], dtype=np.float64)
+
+        for i in range(0, 4):
+            delta_S2[i] = 5.22e-3 * (1.0 - 0.00748 * (np.power(37.0 - self.FREQ[i], 1.3))) * W
+
+        delta_S2[4] = 5.22e-3 * W
+
+        for i in range(0, 4):
+            if delta_S2[i] > 0.069:
+                delta_S2[i] = 0.069
+
+        return delta_S2
