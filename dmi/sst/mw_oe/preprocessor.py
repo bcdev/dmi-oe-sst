@@ -60,7 +60,7 @@ class Preprocessor:
     def convert_temperature(self, preprocessed_data, variable_name):
         if variable_name in self.NWP_SST_VARIABLES:
             sst_data = preprocessed_data[variable_name].data
-            sst_data = sst_data - 271.15
+            sst_data = sst_data - 273.15
             preprocessed_data[variable_name] = Variable(["matchup"], sst_data)
 
     def apply_sst_nwp_bias(self, preprocessed_data, variable_name):

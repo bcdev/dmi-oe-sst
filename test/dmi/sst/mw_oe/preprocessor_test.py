@@ -69,7 +69,7 @@ class PreprocessorTest(unittest.TestCase):
 
         variable = prep_data.variables["amsre.nwp.sea_surface_temperature"]
         self.assertEqual((11,), variable.shape)
-        self.assertAlmostEqual(8.4853086, variable.data[5], 7)
+        self.assertAlmostEqual(6.4853086, variable.data[5], 7)
 
     def test_run_average_variables(self):
         data = DefaultData.create_default_array_3d(7, 7, 5, np.int16)
