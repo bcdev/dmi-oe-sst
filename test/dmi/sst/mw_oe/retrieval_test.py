@@ -20,26 +20,26 @@ class RetrievalTest(unittest.TestCase):
         self.retrieval = Retrieval()
 
     # @todo 1 tb/tb continue here 2017-12-21
-    # def test_run(self):
-    #     dataset = xr.Dataset()
-    #     dataset["amsre.brightness_temperature6V"] = Variable(["matchup_count"], np.array([176.425, 169.479, 169.312], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature6H"] = Variable(["matchup_count"], np.array([90.970, 86.628, 82.412], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature10V"] = Variable(["matchup_count"], np.array([181.509, 174.499, 173.551], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature10H"] = Variable(["matchup_count"], np.array([99.652, 94.343, 87.686], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], np.array([212.392, 198.420, 192.101], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature18H"] = Variable(["matchup_count"], np.array([153.518, 133.252, 115.727], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature23V"] = Variable(["matchup_count"], np.array([250.064, 226.951, 215.141], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature23H"] = Variable(["matchup_count"], np.array([219.831, 184.405, 154.331], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature36V"] = Variable(["matchup_count"], np.array([232.464, 221.212, 217.907], dtype=np.float64))
-    #     dataset["amsre.brightness_temperature36H"] = Variable(["matchup_count"], np.array([183.694, 167.110, 151.268], dtype=np.float64))
-    #     dataset["amsre.nwp.abs_wind_speed"] = Variable(["matchup_count"], np.array([6.0041, 9.2066, 5.1011], dtype=np.float64))
-    #     dataset["amsre.nwp.total_column_water_vapour"] = Variable(["matchup_count"], np.array([59.2189, 26.8415, 14.3992], dtype=np.float64))
-    #     dataset["amsre.nwp.total_column_liquid_water"] = Variable(["matchup_count"], np.array([0.1532787, 0.2105293, 0.0012591], dtype=np.float64))
-    #     dataset["amsre.nwp.sea_surface_temperature"] = Variable(["matchup_count"], np.array([301.68, 291.33, 295.06], dtype=np.float64) - 273.15)
-    #     dataset["amsre.solar_zenith_angle"] = Variable(["matchup_count"], np.array([36.590, 62.030, 150.200], dtype=np.float64))
-    #     dataset["relative_angle"] = Variable(["matchup_count"], np.array([78.187, 359.02, 26.173], dtype=np.float64))
-    #
-    #     self.retrieval.run(dataset, None, FlagCoding(3))
+    def test_run(self):
+        dataset = xr.Dataset()
+        dataset["amsre.brightness_temperature6V"] = Variable(["matchup_count"], np.array([176.4254, 169.4794, 169.3118], dtype=np.float64))
+        dataset["amsre.brightness_temperature6H"] = Variable(["matchup_count"], np.array([90.9698, 86.6282, 82.611], dtype=np.float64))
+        dataset["amsre.brightness_temperature10V"] = Variable(["matchup_count"], np.array([181.49, 174.48, 173.5316], dtype=np.float64))
+        dataset["amsre.brightness_temperature10H"] = Variable(["matchup_count"], np.array([98.8989, 93.5897, 86.9333], dtype=np.float64))
+        dataset["amsre.brightness_temperature18V"] = Variable(["matchup_count"], np.array([212.9936, 199.0224, 192.7028], dtype=np.float64))
+        dataset["amsre.brightness_temperature18H"] = Variable(["matchup_count"], np.array([153.7084, 133.4428, 115.918], dtype=np.float64))
+        dataset["amsre.brightness_temperature23V"] = Variable(["matchup_count"], np.array([250.0724, 226.9596, 215.15], dtype=np.float64))
+        dataset["amsre.brightness_temperature23H"] = Variable(["matchup_count"], np.array([219.4987, 184.0727, 153.9983], dtype=np.float64))
+        dataset["amsre.brightness_temperature36V"] = Variable(["matchup_count"], np.array([232.129, 220.8774, 217.5726], dtype=np.float64))
+        dataset["amsre.brightness_temperature36H"] = Variable(["matchup_count"], np.array([183.7511, 167.1675, 151.3251], dtype=np.float64))
+        dataset["amsre.nwp.abs_wind_speed"] = Variable(["matchup_count"], np.array([6.00405503911681, 9.20655470261406, 5.10105703955726], dtype=np.float64))
+        dataset["amsre.nwp.total_column_water_vapour"] = Variable(["matchup_count"], np.array([59.2188758850098, 26.8414897918701, 14.3991870880127], dtype=np.float64))
+        dataset["amsre.nwp.total_column_liquid_water"] = Variable(["matchup_count"], np.array([0.153278715134895, 0.210529339037996, 0.00125914319133341], dtype=np.float64))
+        dataset["amsre.nwp.sea_surface_temperature"] = Variable(["matchup_count"], np.array([301.679042997567, 291.330501737802, 295.058376493661], dtype=np.float64) - 273.15)
+        dataset["amsre.satellite_zenith_angle"] = Variable(["matchup_count"], np.array([55.19, 55.23, 55.2], dtype=np.float64))
+        dataset["relative_angle"] = Variable(["matchup_count"], np.array([78.1866134486559, 359.01513331183, 26.1734235301682], dtype=np.float64))
+
+        self.retrieval.run(dataset, None, FlagCoding(3))
 
     def test_prepare_first_guess(self):
         ws = np.float64(22.3)
