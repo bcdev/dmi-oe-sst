@@ -55,14 +55,14 @@ class Retrieval:
 
             # Calculate brightness temps on basis of the first guess,
             # our starting point for the iteration by the forward function
-            T_AO = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])
+            T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])
 
-            Delta_T = T_A[i, :] - T_AO
+            Delta_T = T_A[i, :] - T_A0
 
             temp = np.dot(self.S_e_inv, Delta_T)
             j_ite_0[i] = np.dot(Delta_T, temp)
 
-            len_T_A = len(T_AO)
+            len_T_A = len(T_A0)
             ite_Std_inv = np.full([self.maxit, 4], np.NaN, np.float64)
             ite_p = np.full([self.maxit, 4], np.NaN, np.float64)
             ite_TA0 = np.full([self.maxit, len_T_A], np.NaN, np.float64)
@@ -73,6 +73,7 @@ class Retrieval:
             dni = np.full([num_matchups], np.NaN, np.float64)
             J = np.full([num_matchups], np.NaN, np.float64)
             K = np.full([len_T_A, 4], np.NaN, np.float64)
+            AKi = np.full([self.maxit, 4, 4], np.NaN, np.float64)
 
             # -------------------------------------------------
             # Start iteration and calculation of new p estimate
@@ -83,10 +84,10 @@ class Retrieval:
                 # -------------------
                 # Calculate Jacobians
                 # -------------------
-                K[:, 0] = (T_AO - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[0, 2] - p[0, 1])
-                K[:, 1] = (T_AO - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[1, 2] - p[1, 1])
-                K[:, 2] = (T_AO - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[2, 2] - p[2, 1])
-                K[:, 3] = (T_AO - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[3, 2] - p[3, 1])
+                K[:, 0] = (T_A0 - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[0, 2] - p[0, 1])
+                K[:, 1] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[1, 2] - p[1, 1])
+                K[:, 2] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[2, 2] - p[2, 1])
+                K[:, 3] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[3, 2] - p[3, 1])
 
                 # ---------------------
                 # Calculate delta p
@@ -143,18 +144,77 @@ class Retrieval:
                 # And now the new retrieval vector
                 # gets the old name
                 # --------------------------------
-                #for k in range(0,3):
-                    #p[k, :] = p[k,:] + p_new[k]
+                for k in range(0, 4):
+                    p[k, :] = p[k, :] + p_est[k]
 
-                #print(p)
-                #print(p_new)
+                # ---------------------------------
+                # Certainly we now must also update
+                # the deviations
+                # ---------------------------------
+                p[:, 0] = p_new - self.eps
+                p[:, 1] = p_new + self.eps
 
+                # ------------------------------------------------------
+                # We need new brightness temps that match the updated
+                # atmospheric parameters in the updated retrieval vector
+                # They are calculated by using the forward model
+                # ------------------------------------------------------
+                T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])
+
+                # --------------------------------------------
+                # How much do the updated simulated brightness
+                # temps deviate from our measurements?
+                # A L1b data test known as obs-calc
+                # --------------------------------------------
+                Delta_T = T_A[i] - T_A0
+
+                # ---------------------------------------------
+                # Analysis of the quality
+                # of the retrieval result in order to determine
+                # if we need more iterations
+                # ---------------------------------------------
+
+                # Calculate std for members of retrieval vector
+                # This characterizes the quality of our retrieval results
+                for i in range(0, 4):
+                    ite_Std_inv[ite, i] = np.sqrt(S_inv[i, i])
+
+                # Our retrieval result for each iterations
+                ite_p[ite, :] = p[:, 2]  # collect our results per iteration
+
+                # Simulated brightness temperatures for each iteration
+                ite_TA0[ite, :] = T_A0  # collect simulations per iteration
+
+                # OBS-CALC brightness temperatures
+                ite_Delta_T[ite, :] = Delta_T  # Collect obs-calc
+
+                # TB RMSE test
+                test[ite] = np.sqrt(np.mean(Delta_T * Delta_T))  # Total "Disagreement" by Tb RMSE all channels.
+
+                # CHI-SQUARE calc
+                temp = np.matmul(self.S_e, Delta_T)
+                chi[ite] = np.matmul(Delta_T, temp)  # "Disagreement" measured by a chi-square test -reduced
+
+                # The total degree of freedom sums up to 4.
+                dsi[ite] = ds   # degrees of freedom for signal
+                dni[ite] = dn   # degrees of freedom for noise
+
+                # Sensitivities
+                AKi[ite, :, :] = AK
+
+                # Calculating the cost function for each iteration
+                delta_p = p_new - p_0
+                temp = np.matmul(self.S_p_inv, delta_p)
+                cost = np.matmul(delta_p, temp)
+                temp = np.matmul(self.S_e_inv, Delta_T)
+                J[ite] = cost + np.matmul(Delta_T, temp)
+                # print(J[ite])
 
     def prepare_first_guess(self, ws, tcwv, tclw, sst, eps):
         sst = sst + 273.15  # covert sst back to K
         p = np.array([[ws - eps[0], ws + eps[0], ws], [tcwv - eps[1], tcwv + eps[1], tcwv], [tclw - eps[2], tclw + eps[2], tclw], [sst - eps[3], sst + eps[3], sst]], dtype=np.float64)
 
-        p_0 = p[:, 2]
+        p_0 = np.copy(p[:, 2])
 
         return [p, p_0]
 
