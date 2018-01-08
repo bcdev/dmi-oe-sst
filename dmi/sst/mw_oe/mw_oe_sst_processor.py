@@ -18,7 +18,7 @@ MAX_ITERATIONS = 5
 
 
 class MwOeSstProcessor:
-    _version = "0.0.5"
+    _version = "0.1.0"
 
     KERNEL_SIZE = 4
 
