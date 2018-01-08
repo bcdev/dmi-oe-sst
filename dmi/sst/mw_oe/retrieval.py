@@ -54,12 +54,23 @@ class Retrieval:
 
             T_A = self.create_T_A(input)
 
+            # ------------------------------------------------------
             # Calculate brightness temps on basis of the first guess,
             # our starting point for the iteration by the forward function
+            # ------------------------------------------------------
             T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])
 
+            # ----------------------------------------------
+            # Obs - calc, also needed to start the iteration
+            # ----------------------------------------------
             Delta_T = T_A[matchup_index, :] - T_A0
 
+            # ------------------------------
+            # Results from inversion with FG
+            # ------------------------------
+            tb_rmse_ite0 = np.sqrt(np.mean(Delta_T * Delta_T))
+            dtb_ite0 = -Delta_T
+            T_A0_ite0 = T_A0
             temp = np.dot(self.S_e_inv, Delta_T)
             j_ite_0[matchup_index] = np.dot(Delta_T, temp)
 
@@ -79,9 +90,10 @@ class Retrieval:
             # -------------------------------------------------
             # Start iteration and calculation of new p estimate
             # -------------------------------------------------
-
+            convergence_passed_flag = 0
+            convergence_passed_idx = self.maxit
             for ite in range(0, self.maxit):
-                #for ite in range(0, 1):
+                # for ite in range(0, 1):
                 # -------------------
                 # Calculate Jacobians
                 # -------------------
@@ -218,7 +230,37 @@ class Retrieval:
 
                 # convergence criterion
                 if (di2[matchup_index, ite] < 0.1) & (di2[matchup_index, ite] > 0.0):
+                    convergence_passed_flag = 1
+                    # need to add one as the Matlab code counts to basis one, whereas we
+                    # are in Python using zero based counting tb 2018-01-08
+                    convergence_passed_idx = ite + 1
+
                     break
+
+            # collect results into structure
+            results.j.data[matchup_index, :] = J
+            results.tb_rmse_ite.data[matchup_index, :] = test
+            results.tb_rmse_ite0.data[matchup_index] = tb_rmse_ite0
+            results.tb_chi_ite.data[matchup_index, :] = chi
+            results.convergence_passed_flag.data[matchup_index] = convergence_passed_flag
+            results.convergence_passed_idx.data[matchup_index] = convergence_passed_idx
+            results.di2.data[matchup_index, :] = di2[matchup_index, :]
+            results.dtb_ite0.data[matchup_index, :] = dtb_ite0
+            results.TA0_ite0.data[matchup_index, :] = T_A0_ite0
+            results.j_ite0[matchup_index] = j_ite_0[matchup_index]
+            
+            last_iteration = convergence_passed_idx - 1
+            results.AK[matchup_index,:] = np.diagonal(AKi[last_iteration, :, :])
+            results.chisq[matchup_index] = chi[last_iteration]
+            results.tb_rmse[matchup_index] = test[last_iteration]
+            results.p[matchup_index,:] = ite_p[last_iteration, :]
+            results.S[matchup_index,:] = ite_Std_inv[last_iteration, :]
+            results.tb_sim[matchup_index,:] = ite_TA0[last_iteration, :]
+            results.dtb[matchup_index,:] = -ite_Delta_T[last_iteration, :]
+            results.ds[matchup_index] = dsi[last_iteration]
+            results.dn[matchup_index] = dni[last_iteration]
+            results.K4[matchup_index,:] = K[:,3]
+            results.ite_index[matchup_index] = convergence_passed_idx
 
     def prepare_first_guess(self, ws, tcwv, tclw, sst, eps):
         sst = sst + 273.15  # covert sst back to K

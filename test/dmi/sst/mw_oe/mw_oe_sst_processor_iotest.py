@@ -39,7 +39,7 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertIsNotNone(target_data["convergence_passed_idx"])
             self.assertIsNotNone(target_data["di2"])
             self.assertIsNotNone(target_data["dtb_ite0"])
-            self.assertIsNotNone(target_data["TAO_ite0"])
+            self.assertIsNotNone(target_data["TA0_ite0"])
             self.assertIsNotNone(target_data["j_ite0"])
             self.assertIsNotNone(target_data["AK"])
             self.assertIsNotNone(target_data["chisq"])

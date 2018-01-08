@@ -59,10 +59,10 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertTrue(np.isnan(dtb_ite0.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        TAO_ite0 = result.variables["TAO_ite0"]
-        self.assertEqual((22, 10), TAO_ite0.shape)
-        self.assertTrue(np.isnan(TAO_ite0.data[5, 6]))
-        self.assertTrue(np.isnan(TAO_ite0.attrs["_FillValue"]))
+        TA0_ite0 = result.variables["TA0_ite0"]
+        self.assertEqual((22, 10), TA0_ite0.shape)
+        self.assertTrue(np.isnan(TA0_ite0.data[5, 6]))
+        self.assertTrue(np.isnan(TA0_ite0.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
         j_ite0 = result.variables["j_ite0"]

@@ -14,7 +14,7 @@ from dmi.sst.mw_oe.retrieval import Retrieval
 from dmi.sst.util.default_data import DefaultData
 
 NUM_BT = 10
-MAX_ITERATIONS = 5
+MAX_ITERATIONS = 10
 
 
 class MwOeSstProcessor:
@@ -109,9 +109,9 @@ class MwOeSstProcessor:
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
         dataset["dtb_ite0"] = variable
 
-        # TAO_ite0
+        # TA0_ite0
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["TAO_ite0"] = variable
+        dataset["TA0_ite0"] = variable
 
         # j_ite0
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
