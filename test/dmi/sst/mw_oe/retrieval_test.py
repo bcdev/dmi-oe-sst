@@ -19,7 +19,6 @@ class RetrievalTest(unittest.TestCase):
     def setUp(self):
         self.retrieval = Retrieval()
 
-    # @todo 1 tb/tb continue here 2017-12-21
     def test_run(self):
         dataset = xr.Dataset()
         dataset["amsre.brightness_temperature6V"] = Variable(["matchup_count"], np.array([176.4254, 169.4794, 169.3118], dtype=np.float64))

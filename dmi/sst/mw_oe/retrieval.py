@@ -39,39 +39,40 @@ class Retrieval:
         phi_rd = input["relative_angle"].data
 
         j_ite_0 = np.full([num_matchups], np.NaN, np.float64)
+        di2 = np.full([num_matchups, self.maxit], np.NaN, np.float64)
         sss = np.float64(35.0)
 
         flags = flag_coding.get_flags()
-        for i in range(0, num_matchups):
+        for matchup_index in range(0, num_matchups):
             # check if matchup is already flagged, if so: next one
-            if flags[i] != 0:
+            if flags[matchup_index] != 0:
                 continue
 
-            [p, p_0] = self.prepare_first_guess(ws[i], tcwv[i], tclw[i], sst[i], self.eps)
+            [p, p_0] = self.prepare_first_guess(ws[matchup_index], tcwv[matchup_index], tclw[matchup_index], sst[matchup_index], self.eps)
 
-            theta_d = np.float64(sza[i])
+            theta_d = np.float64(sza[matchup_index])
 
             T_A = self.create_T_A(input)
 
             # Calculate brightness temps on basis of the first guess,
             # our starting point for the iteration by the forward function
-            T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])
+            T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])
 
-            Delta_T = T_A[i, :] - T_A0
+            Delta_T = T_A[matchup_index, :] - T_A0
 
             temp = np.dot(self.S_e_inv, Delta_T)
-            j_ite_0[i] = np.dot(Delta_T, temp)
+            j_ite_0[matchup_index] = np.dot(Delta_T, temp)
 
             len_T_A = len(T_A0)
             ite_Std_inv = np.full([self.maxit, 4], np.NaN, np.float64)
             ite_p = np.full([self.maxit, 4], np.NaN, np.float64)
             ite_TA0 = np.full([self.maxit, len_T_A], np.NaN, np.float64)
             ite_Delta_T = np.full([self.maxit, len_T_A], np.NaN, np.float64)
-            test = np.full([num_matchups], np.NaN, np.float64)
-            chi = np.full([num_matchups], np.NaN, np.float64)
-            dsi = np.full([num_matchups], np.NaN, np.float64)
-            dni = np.full([num_matchups], np.NaN, np.float64)
-            J = np.full([num_matchups], np.NaN, np.float64)
+            test = np.full([self.maxit], np.NaN, np.float64)
+            dsi = np.full([self.maxit], np.NaN, np.float64)
+            dni = np.full([self.maxit], np.NaN, np.float64)
+            chi = np.full([self.maxit], np.NaN, np.float64)
+            J = np.full([self.maxit], np.NaN, np.float64)
             K = np.full([len_T_A, 4], np.NaN, np.float64)
             AKi = np.full([self.maxit, 4, 4], np.NaN, np.float64)
 
@@ -79,15 +80,15 @@ class Retrieval:
             # Start iteration and calculation of new p estimate
             # -------------------------------------------------
 
-            # for ite in range(0, self.maxit):
-            for ite in range(0, 1):
+            for ite in range(0, self.maxit):
+                #for ite in range(0, 1):
                 # -------------------
                 # Calculate Jacobians
                 # -------------------
-                K[:, 0] = (T_A0 - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[0, 2] - p[0, 1])
-                K[:, 1] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[1, 2] - p[1, 1])
-                K[:, 2] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[2, 2] - p[2, 1])
-                K[:, 3] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, sw, theta_d, sss, phi_rd[i])) / (p[3, 2] - p[3, 1])
+                K[:, 0] = (T_A0 - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[0, 2] - p[0, 1])
+                K[:, 1] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[1, 2] - p[1, 1])
+                K[:, 2] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[2, 2] - p[2, 1])
+                K[:, 3] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[3, 2] - p[3, 1])
 
                 # ---------------------
                 # Calculate delta p
@@ -159,14 +160,14 @@ class Retrieval:
                 # atmospheric parameters in the updated retrieval vector
                 # They are calculated by using the forward model
                 # ------------------------------------------------------
-                T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[i])
+                T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])
 
                 # --------------------------------------------
                 # How much do the updated simulated brightness
                 # temps deviate from our measurements?
                 # A L1b data test known as obs-calc
                 # --------------------------------------------
-                Delta_T = T_A[i] - T_A0
+                Delta_T = T_A[matchup_index] - T_A0
 
                 # ---------------------------------------------
                 # Analysis of the quality
@@ -176,8 +177,8 @@ class Retrieval:
 
                 # Calculate std for members of retrieval vector
                 # This characterizes the quality of our retrieval results
-                for i in range(0, 4):
-                    ite_Std_inv[ite, i] = np.sqrt(S_inv[i, i])
+                for k in range(0, 4):
+                    ite_Std_inv[ite, k] = np.sqrt(S_inv[k, k])
 
                 # Our retrieval result for each iterations
                 ite_p[ite, :] = p[:, 2]  # collect our results per iteration
@@ -196,8 +197,8 @@ class Retrieval:
                 chi[ite] = np.matmul(Delta_T, temp)  # "Disagreement" measured by a chi-square test -reduced
 
                 # The total degree of freedom sums up to 4.
-                dsi[ite] = ds   # degrees of freedom for signal
-                dni[ite] = dn   # degrees of freedom for noise
+                dsi[ite] = ds  # degrees of freedom for signal
+                dni[ite] = dn  # degrees of freedom for noise
 
                 # Sensitivities
                 AKi[ite, :, :] = AK
@@ -208,7 +209,16 @@ class Retrieval:
                 cost = np.matmul(delta_p, temp)
                 temp = np.matmul(self.S_e_inv, Delta_T)
                 J[ite] = cost + np.matmul(Delta_T, temp)
-                # print(J[ite])
+
+                # Convergence - cost function being minimized
+                if ite == 0:
+                    di2[matchup_index, ite] = j_ite_0[matchup_index] - J[ite]
+                else:
+                    di2[matchup_index, ite] = J[ite - 1] - J[ite]
+
+                # convergence criterion
+                if (di2[matchup_index, ite] < 0.1) & (di2[matchup_index, ite] > 0.0):
+                    break
 
     def prepare_first_guess(self, ws, tcwv, tclw, sst, eps):
         sst = sst + 273.15  # covert sst back to K
