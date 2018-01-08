@@ -262,6 +262,8 @@ class Retrieval:
             results.K4[matchup_index,:] = K[:,3]
             results.ite_index[matchup_index] = convergence_passed_idx
 
+        return results
+
     def prepare_first_guess(self, ws, tcwv, tclw, sst, eps):
         sst = sst + 273.15  # covert sst back to K
         p = np.array([[ws - eps[0], ws + eps[0], ws], [tcwv - eps[1], tcwv + eps[1], tcwv], [tclw - eps[2], tclw + eps[2], tclw], [sst - eps[3], sst + eps[3], sst]], dtype=np.float64)

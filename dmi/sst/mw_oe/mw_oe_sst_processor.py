@@ -46,7 +46,7 @@ class MwOeSstProcessor:
         results = self._create_result_structure(matchup_count, MAX_ITERATIONS, NUM_BT)
 
         retrieval = Retrieval()
-        retrieval.run(pre_proc_mmd_data, results, flag_coding)
+        results = retrieval.run(pre_proc_mmd_data, results, flag_coding)
 
         self.add_flags_variable(flag_coding, results)
 
