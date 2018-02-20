@@ -18,40 +18,66 @@ MAX_ITERATIONS = 10
 
 
 class MwOeSstProcessor:
-    _version = "0.1.0"
+    _version = "0.1.1"
 
     KERNEL_SIZE = 4
 
-    def run(self, args):
-        parser = self._create_cmd_line_parser()
-        cmd_line_args = parser.parse_args(args)
-        input_file = cmd_line_args.input_file
+    input_file = None
+    output_directory = None
 
+    def run(self, args):
+        self.parse_cmd_line(args)
+
+        print("reading input file: " + self.input_file)
         mmd_reader = MmdReader()
-        mmd_data = mmd_reader.read(input_file)
+        mmd_data = mmd_reader.read(self.input_file)
+        print("... success")
 
         matchup_count = mmd_data.dims["matchup_count"]
+        print(matchup_count, " matches")
 
         flag_coding = FlagCoding(matchup_count)
 
+        print("running preprocessing ...")
         preprocessor = Preprocessor()
         pre_proc_mmd_data = preprocessor.run(mmd_data, flag_coding)
+        print("... success")
 
+        print("running input data QA ...")
         qa_processor = QaProcessor()
         qa_processor.run_qa(pre_proc_mmd_data, flag_coding)
+        print("... success")
 
+        print("running input bias correction ...")
         bt_bias_correction = BtBiasCorrection()
         bt_bias_correction.run(pre_proc_mmd_data)
+        print("... success")
 
+        print("preparing output file ...")
         results = self._create_result_structure(matchup_count, MAX_ITERATIONS, NUM_BT)
+        print("... success")
 
+        print("running retrieval ...")
         retrieval = Retrieval()
         results = retrieval.run(pre_proc_mmd_data, results, flag_coding)
+        print("... success")
 
+        print("writing ")
         self.add_flags_variable(flag_coding, results)
 
-        self._write_result_data(cmd_line_args.o[0], input_file, results)
+        self._write_result_data(self.output_directory, self.input_file, results)
         mmd_reader.close()
+        print("... success")
+
+    def parse_cmd_line(self, args):
+        parser = self._create_cmd_line_parser()
+        cmd_line_args = parser.parse_args(args)
+        self.input_file = cmd_line_args.input_file
+        if cmd_line_args.o is None:
+            print("no output directory supplied - write to input directory")
+            self.output_directory = os.path.dirname(self.input_file)
+        else:
+            self.output_directory = cmd_line_args.o[0]
 
     def add_flags_variable(self, flag_coding, results):
         flags = flag_coding.get_flags()
