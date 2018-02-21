@@ -29,6 +29,7 @@ class Preprocessor:
         preprocessed_data = xr.Dataset()
 
         for variable_name in dataset.variables:
+            print(" ... " + variable_name)
             if variable_name in self.TO_SQUEEZE_NAMES:
                 self.squeeze_data(dataset, preprocessed_data, variable_name)
                 continue
@@ -88,6 +89,7 @@ class Preprocessor:
         preprocessed_data["relative_angle"] = Variable(["matchup"], target_data)
 
     def average_subset(self, dataset, preprocessed_data, variable_name, flag_coding=None):
+        # @todo 1 tb/tb this method needs performance boost 2018-02-20
         num_matchups = len(dataset.coords["matchup_count"])
         invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
         variable = dataset.variables[variable_name]
