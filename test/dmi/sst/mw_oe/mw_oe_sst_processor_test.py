@@ -3,7 +3,6 @@ import unittest
 import numpy as np
 
 from dmi.sst.mw_oe.mw_oe_sst_processor import MwOeSstProcessor
-from test.dmi.test_data_utils import TestDataUtils
 
 
 class MwOeMMDProcessorTest(unittest.TestCase):
@@ -134,12 +133,8 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         ite_index = result.variables["ite_index"]
         self.assertEqual((22,), ite_index.shape)
         self.assertEqual(255, ite_index.data[5])
-        self.assertEqual(255, ite_index.attrs["_FillValue"])
-        # @todo tb/tb request description from DMI and add 2017-10-25
+        self.assertEqual(255, ite_index.attrs["_FillValue"])  # @todo tb/tb request description from DMI and add 2017-10-25
 
     def test_create_target_file_name(self):
-        test_mmd = TestDataUtils.get_test_mmd()
-
-        target_file_name = MwOeSstProcessor._create_target_file_name(test_mmd)
+        target_file_name = MwOeSstProcessor._create_target_file_name("mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273.nc")
         self.assertEqual("mmd6c_sst_ship-sst_amsre-aq_2010-272_2010-273_oe-sst.nc", target_file_name)
-
