@@ -1,0 +1,17 @@
+name: dmi-oe-sst-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6*
+  #
+  # dependencies (in alphabetical order)
+  #
+  - netcdf4 >=1.2
+  - numpy >=1.11
+  - xarray >=0.10
+  #
+  # for testing only
+  #
+  # - pytest >=3.1,<3.2
+  # - pytest-cov >=2.5.1,<2.6
