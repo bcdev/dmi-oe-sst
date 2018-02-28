@@ -7,6 +7,7 @@ dependencies:
   #
   # dependencies (in alphabetical order)
   #
+  - coverage >= 4.4
   - netcdf4 >=1.2
   - numpy >=1.11
   - xarray >=0.9.6
