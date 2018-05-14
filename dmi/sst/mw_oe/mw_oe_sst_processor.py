@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 import numpy as np
 import xarray as xr
@@ -33,6 +34,8 @@ class MwOeSstProcessor:
         mmd_data = mmd_reader.read(self.input_file)
         print("... success")
 
+        start_time = time.time()
+
         matchup_count = mmd_data.dims["matchup_count"]
         print(matchup_count, " matches")
 
@@ -64,6 +67,8 @@ class MwOeSstProcessor:
 
         print("writing ")
         self.add_flags_variable(flag_coding, results)
+
+        print("--- %s seconds ---" % (time.time() - start_time))
 
         self._write_result_data(self.output_directory, self.input_file, results)
         mmd_reader.close()

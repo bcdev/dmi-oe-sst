@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from numba import jit, prange
 from xarray import Variable
 
 from dmi.sst.mw_oe.pressure_processor import PressureProcessor
@@ -94,6 +95,7 @@ class Preprocessor:
         invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
         variable = dataset.variables[variable_name]
         fill_value = variable.attrs["_FillValue"]
+        input_data = variable.values
         target_data = DefaultData.create_default_vector(num_matchups, np.float32, fill_value)
 
         width = variable.shape[2]
@@ -110,11 +112,11 @@ class Preprocessor:
         max_num_invalid = int(np.ceil(self.AVERAGING_LENGTH * self.AVERAGING_LENGTH * 0.1))
 
         for i in range(0, num_matchups):
-            layer = dataset.variables[variable_name][i, y_min:y_max, x_min: x_max]
-            masked_layer = np.ma.masked_values(layer, fill_value)
-            num_fills = np.ma.count_masked(masked_layer)
+            layer = input_data[i, y_min:y_max, x_min: x_max]
+            masked_layer = calculate_masked(layer, fill_value)
+            num_fills = count_masked(masked_layer)
             if num_fills <= max_num_invalid:
-                target_data[i] = np.ma.average(masked_layer)
+                target_data[i] = np.nanmean(masked_layer)
             else:
                 target_data[i] = fill_value
                 invalid_data_array[i] = True
@@ -130,6 +132,7 @@ class Preprocessor:
         invalid_data_array = np.zeros(num_matchups, dtype=np.bool)
         variable = dataset.variables[variable_name]
         fill_value = variable.attrs["_FillValue"]
+        input_data = variable.values
         target_data = DefaultData.create_default_vector(num_matchups, np.float32, fill_value)
 
         width = variable.shape[2]
@@ -146,11 +149,11 @@ class Preprocessor:
         max_num_invalid = int(np.ceil(self.STDDEV_LENGTH * self.STDDEV_LENGTH * 0.1))
 
         for i in range(0, num_matchups):
-            layer = dataset.variables[variable_name][i, y_min:y_max, x_min: x_max]
-            masked_layer = np.ma.masked_values(layer, fill_value)
-            num_fills = np.ma.count_masked(masked_layer)
+            layer = input_data[i, y_min:y_max, x_min: x_max]
+            masked_layer = calculate_masked(layer, fill_value)
+            num_fills = count_masked(masked_layer)
             if num_fills <= max_num_invalid:
-                target_data[i] = np.ma.std(masked_layer)
+                target_data[i] = np.nanstd(masked_layer)
             else:
                 target_data[i] = fill_value
                 invalid_data_array[i] = True
@@ -224,3 +227,36 @@ class Preprocessor:
             phi_rel = phi_rel + 360.0
 
         return phi_rel
+
+
+@jit('float32[:, :](float32[:, :], float32)', nopython=True, parallel=True)
+def calculate_masked(layer, fill_value):
+    height = layer.shape[0]
+    width = layer.shape[1]
+    result = np.zeros(layer.shape, dtype=np.float32)
+
+    for y in prange(0, height):
+        for x in prange(0, width):
+            value = layer[y, x]
+            if abs(value - fill_value) < 1e-9:
+                result[y, x] = np.NaN
+            else:
+                result[y, x] = value
+
+    return result
+
+
+@jit('int32(float32[:, :])', nopython=True, parallel=True)
+def count_masked(layer):
+    height = layer.shape[0]
+    width = layer.shape[1]
+
+    result = 0
+
+    for y in prange(0, height):
+        for x in prange(0, width):
+            value = layer[y, x]
+            if np.isnan(value):
+                result += 1
+
+    return result

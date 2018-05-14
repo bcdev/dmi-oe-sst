@@ -72,7 +72,7 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(6.4853086, variable.data[5], 7)
 
     def test_run_average_variables(self):
-        data = DefaultData.create_default_array_3d(7, 7, 5, np.int16)
+        data = DefaultData.create_default_array_3d(7, 7, 5, np.float32)
         data[0, 1, :] = 102
         data[0, 2, :] = 101
         data[0, 3, :] = 103
@@ -96,7 +96,7 @@ class PreprocessorTest(unittest.TestCase):
     def test_run_average_variables_masks_invalid(self):
         fill_value = -79
 
-        data = DefaultData.create_default_array_3d(9, 9, 4, np.int16)
+        data = DefaultData.create_default_array_3d(9, 9, 4, np.float32)
         data[0, 2, :] = 104
         data[0, 3, :] = 105
         data[0, 4, :] = 106
@@ -123,7 +123,7 @@ class PreprocessorTest(unittest.TestCase):
     def test_run_average_variables_too_many_invalid(self):
         fill_value = -79
 
-        data = DefaultData.create_default_array_3d(5, 5, 4, np.int16)
+        data = DefaultData.create_default_array_3d(5, 5, 4, np.float32)
         data[0, 0, :] = 104
         data[0, 1, :] = 105
         data[0, 2, :] = 106
@@ -213,11 +213,8 @@ class PreprocessorTest(unittest.TestCase):
         self.assertAlmostEqual(281.05164, variable.data[2], 5)
 
     def test_extract_ascending_descending(self):
-        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111125_D.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
+        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807111125_D.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
         self.dataset["amsre.l2a_filename"] = Variable(["matchup_count"], data)
 
         prep_data = self.preprocessor.run(self.dataset)
@@ -229,11 +226,8 @@ class PreprocessorTest(unittest.TestCase):
         self.assertFalse(variable.data[4])
 
     def test_extract_ascending_descending_corrupt_filename(self):
-        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf",
-                "AMSR_E_ohlala_something_is_wrong_here.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf",
-                "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
+        data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf", "AMSR_E_ohlala_something_is_wrong_here.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
+                "AMSR_E_L2A_BrightnessTemperatures_V12_200807111215_A.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807112258_D.hdf"]
         self.dataset["amsre.l2a_filename"] = Variable(["matchup_count"], data)
 
         flag_coding = FlagCoding(5)
@@ -254,11 +248,11 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual(0, flags[4])
 
     def test_run_stddev_variables(self):
-        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
-        for x in range(0,21):
-            for y in range(0,21):
-                data[:, y, x] = x+y
-                
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.float32)
+        for x in range(0, 21):
+            for y in range(0, 21):
+                data[:, y, x] = (x + y) * 0.23
+
         variable = Variable(["matchup_count", "ny", "nx"], data)
         variable.attrs["_FillValue"] = -79
         self.dataset["amsre.brightness_temperature23V"] = variable
@@ -269,16 +263,16 @@ class PreprocessorTest(unittest.TestCase):
         variable = prep_data.variables["amsre.brightness_temperature23V_stddev"]
 
         self.assertEqual((5,), variable.shape)
-        self.assertAlmostEqual(8.563488, variable.data[0], 7)
+        self.assertAlmostEqual(1.9696023, variable.data[0], 7)
 
         flags = flag_coding.get_flags()
         self.assertEqual(0, flags[0])
 
     def test_run_stddev_variables_masks_fill_value(self):
-        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
-        for x in range(0,21):
-            for y in range(0,21):
-                data[:, y, x] = x+y
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.float32)
+        for x in range(0, 21):
+            for y in range(0, 21):
+                data[:, y, x] = (x + y) * 1.0
 
         data[:, 1, 1] = -80
         data[:, 10, 10] = -80
@@ -300,10 +294,10 @@ class PreprocessorTest(unittest.TestCase):
         self.assertEqual(0, flags[1])
 
     def test_run_stddev_variables_too_many_fill_values(self):
-        data = DefaultData.create_default_array_3d(21, 21, 5, np.int16)
-        for x in range(0,21):
-            for y in range(0,21):
-                data[:, y, x] = x+y
+        data = DefaultData.create_default_array_3d(21, 21, 5, np.float32)
+        for x in range(0, 21):
+            for y in range(0, 21):
+                data[:, y, x] = x + y
 
         data[1, :, 1] = -81
         data[1, :, 2] = -81
@@ -318,9 +312,9 @@ class PreprocessorTest(unittest.TestCase):
         variable = prep_data.variables["amsre.brightness_temperature36V_stddev"]
 
         self.assertEqual((5,), variable.shape)
-        self.assertAlmostEqual(8.563488, variable.data[0], 7)
+        self.assertAlmostEqual(8.563489, variable.data[0], 7)
         self.assertAlmostEqual(-81, variable.data[1], 7)
-        self.assertAlmostEqual(8.563488, variable.data[2], 7)
+        self.assertAlmostEqual(8.563489, variable.data[2], 7)
 
         flags = flag_coding.get_flags()
         self.assertEqual(1, flags[1])
