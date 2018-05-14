@@ -1,5 +1,15 @@
 import numpy as np
 
+from numba import jit, prange
+
+# AMSR-E frequencies
+FREQ = np.array([6.93, 10.65, 18.70, 23.80, 36.50], dtype=np.float64)
+
+# Model coefficients m
+#                 v-p m1  h-p m1 v-p m2  h-p m2
+MC_M = np.array([[0.0002, 0.002, 0.0069, 0.006], [0.0002, 0.002, 0.0069, 0.006], [0.0014, 0.00293, 0.00736, 0.00656], [0.00178, 0.00308, 0.0073, 0.0066], [0.00257, 0.00329, 0.00701, 0.0066]],
+                dtype=np.float64)
+
 
 class FwModel:
     # fw-model correction coefficients for correction "sst2_ws2_phir"
@@ -24,8 +34,6 @@ class FwModel:
                        [-1604.15378263188, 0.0145433264174034, -0.000833696906570764, -0.0106371708585439, 0.000608083358611499, 6.84037734125216, -0.699341598809711, 28.7106783718284,
                         629.033997763998, -2293.19464528223, -3711.89956408714, 3862.05120458042, 3694.27481015444]], dtype=np.float64)
 
-    # AMSR-E frequencies
-    FREQ = np.array([6.93, 10.65, 18.70, 23.80, 36.50], dtype=np.float64)
     light_speed = 3.00E10  # Speed of light, [cm/s]
     LAMBA = light_speed / (FREQ * 1E9)
 
@@ -47,11 +55,6 @@ class FwModel:
     MC_GEO = np.array([[-0.00027, 0.00054, -2.1e-005, 3.2e-005, -2.1e-005, -2.526e-005, 0, 0], [-0.00032, 0.00072, -2.9e-005, 4.4e-005, -2.1e-005, -2.894e-005, 8e-008, -2e-008],
                        [-0.00049, 0.00113, -5.3e-005, 7e-005, -2.1e-005, -3.69e-005, 3.1e-007, -1.2e-007], [-0.00063, 0.00139, -7e-005, 8.5e-005, -2.1e-005, -4.195e-005, 4.1e-007, -2e-007],
                        [-0.00101, 0.00191, -0.000105, 0.000112, -2.1e-005, -5.451e-005, 4.5e-007, -3.6e-007]], dtype=np.float64)
-
-    # Model coefficients m
-    #                 v-p m1  h-p m1 v-p m2  h-p m2
-    MC_M = np.array([[0.0002, 0.002, 0.0069, 0.006], [0.0002, 0.002, 0.0069, 0.006], [0.0014, 0.00293, 0.00736, 0.00656], [0.00178, 0.00308, 0.0073, 0.0066], [0.00257, 0.00329, 0.00701, 0.0066]],
-                    dtype=np.float64)
 
     DEG_TO_RAD = np.pi / np.float64(180.0)
 
@@ -92,8 +95,8 @@ class FwModel:
         # ------------------------
         # Model for the Atmosphere
         # ------------------------
-        T_V = self.calc_T_V(V)
-        sig_TS_TV = self.calc_sig_TS_TV(T_S_mix, T_V)
+        T_V = calc_T_V(V)
+        sig_TS_TV = calc_sig_TS_TV(T_S_mix, T_V)
 
         # equation (26a)
         V_SQ = V * V
@@ -163,8 +166,8 @@ class FwModel:
         R_geoH = R_0H - (self.MC_GEO[:, 1] + self.MC_GEO[:, 3] * (theta_d - 53.0) + self.MC_GEO[:, 5] * (T_ow - 288.0) + self.MC_GEO[:, 7] * (theta_d - 53.0) * (T_ow - 288.0)) * W
         R_geoV = R_0V - (self.MC_GEO[:, 0] + self.MC_GEO[:, 2] * (theta_d - 53.0) + self.MC_GEO[:, 4] * (T_ow - 288.0) + self.MC_GEO[:, 6] * (theta_d - 53.0) * (T_ow - 288.0)) * W
 
-        F_H = self.calc_F_horizontal(W)
-        F_V = self.calc_F_vertical(W)
+        F_H = calc_F_horizontal(W, MC_M)
+        F_V = calc_F_vertical(W, MC_M)
 
         R_H = (1.0 - F_H) * R_geoH  # equation (49) Composite reflectivity for open water; horizontal pol
         R_V = (1.0 - F_V) * R_geoV  # equation (49) Composite reflectivity for open water; vertical pol
@@ -183,11 +186,11 @@ class FwModel:
         # --------------------------------------------------
         # Atmospheric Radiation Scattered by the Sea Surface
         # --------------------------------------------------
-        Delta_S2 = self.create_Delta_S2(W)
+        Delta_S2 = create_Delta_S2(W)
         term = Delta_S2 - 70 * np.power(Delta_S2, 3)  # Term for equation (62a+b)
 
-        OmegaH = (6.2 - 0.001 * np.square(37.0 - self.FREQ)) * term * np.square(tau)  # equation (62a); horizontal pol.
-        OmegaV = (2.5 + 0.018 * (37.0 - self.FREQ)) * term * np.power(tau, 3.4)  # equation (62b); vertical pol.
+        OmegaH = (6.2 - 0.001 * np.square(37.0 - FREQ)) * term * np.square(tau)  # equation (62a); horizontal pol.
+        OmegaV = (2.5 + 0.018 * (37.0 - FREQ)) * term * np.power(tau, 3.4)  # equation (62b); vertical pol.
 
         T_BOmegaH = ((1.0 + OmegaH) * (1.0 - tau) * (T_D - self.T_C) + self.T_C) * R_eff_H  # equation (61) horizontal pol.
         T_BOmegaV = ((1.0 + OmegaV) * (1 - tau) * (T_D - self.T_C) + self.T_C) * R_eff_V  # equation (61) vertical pol.
@@ -252,56 +255,65 @@ class FwModel:
         else:
             return T_ow
 
-    def calc_T_V(self, V):
-        if V <= 48.0:
-            # equation (27a)
-            return 273.16 + 0.8337 * V - 3.029e-5 * np.power(V, 3.33)
-        else:
-            # equation (27b)
-            return np.float64(301.16)
+@jit('float64(float64)', nopython=True)
+def calc_T_V(V):
+    if V <= 48.0:
+        # equation (27a)
+        return 273.16 + 0.8337 * V - 3.029e-5 * np.power(V, 3.33)
+    else:
+        # equation (27b)
+        return np.float64(301.16)
 
-    def calc_sig_TS_TV(self, T_S_mix, T_V):
-        delta = T_S_mix - T_V
-        abs_delta = np.abs(delta)
-        if abs_delta <= 20.0:
-            # equation (27c)
-            return 1.05 * delta * (1.0 - (delta * delta) / 1200)
-        else:
-            #  equation (27d)
-            return np.sign(delta) * 14.0
 
-    def calc_F_horizontal(self, W):
-        W_1 = 7.0
-        W_2 = 12.0
+@jit('float64(float64, float64)', nopython=True)
+def calc_sig_TS_TV(T_S_mix, T_V):
+    delta = T_S_mix - T_V
+    abs_delta = np.abs(delta)
+    if abs_delta <= 20.0:
+        # equation (27c)
+        return 1.05 * delta * (1.0 - (delta * delta) / 1200)
+    else:
+        #  equation (27d)
+        return np.sign(delta) * 14.0
 
-        if W < W_1:
-            return self.MC_M[:, 1] * W  # equation (60a)
-        elif (W >= W_1) & (W <= W_2):
-            return self.MC_M[:, 1] * W + 0.5 * (self.MC_M[:, 3] - self.MC_M[:, 1]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
-        else:
-            return self.MC_M[:, 3] * W - 0.5 * (self.MC_M[:, 3] - self.MC_M[:, 1]) * (W_2 + W_1)  # equation (60c)
 
-    def calc_F_vertical(self, W):
-        W_1 = 3.0
-        W_2 = 12.0
+@jit('float64[:](float64, float64[:, :])', nopython=True)
+def calc_F_horizontal(W, MC_M):
+    W_1 = 7.0
+    W_2 = 12.0
 
-        if W < W_1:
-            return self.MC_M[:, 0] * W  # equation (60a)
-        elif (W >= W_1) & (W <= W_2):
-            return self.MC_M[:, 0] * W + 0.5 * (self.MC_M[:, 2] - self.MC_M[:, 0]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
-        else:
-            return self.MC_M[:, 2] * W - 0.5 * (self.MC_M[:, 2] - self.MC_M[:, 0]) * (W_2 + W_1)  # equation (60c)
+    if W < W_1:
+        return MC_M[:, 1] * W  # equation (60a)
+    elif (W >= W_1) & (W <= W_2):
+        return MC_M[:, 1] * W + 0.5 * (MC_M[:, 3] - MC_M[:, 1]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
+    else:
+        return MC_M[:, 3] * W - 0.5 * (MC_M[:, 3] - MC_M[:, 1]) * (W_2 + W_1)  # equation (60c)
 
-    def create_Delta_S2(self, W):
-        delta_S2 = np.zeros([5], dtype=np.float64)
 
-        for i in range(0, 4):
-            delta_S2[i] = 5.22e-3 * (1.0 - 0.00748 * (np.power(37.0 - self.FREQ[i], 1.3))) * W
+@jit('float64[:](float64, float64[:, :])', nopython=True)
+def calc_F_vertical(W, MC_M):
+    W_1 = 3.0
+    W_2 = 12.0
 
-        delta_S2[4] = 5.22e-3 * W
+    if W < W_1:
+        return MC_M[:, 0] * W  # equation (60a)
+    elif (W >= W_1) & (W <= W_2):
+        return MC_M[:, 0] * W + 0.5 * (MC_M[:, 2] - MC_M[:, 0]) * (W - W_1) * (W - W_1) / (W_2 - W_1)  # equation (60b)
+    else:
+        return MC_M[:, 2] * W - 0.5 * (MC_M[:, 2] - MC_M[:, 0]) * (W_2 + W_1)  # equation (60c)
 
-        for i in range(0, 5):
-            if delta_S2[i] > 0.069:
-                delta_S2[i] = 0.069
 
-        return delta_S2
+@jit('float64[:](float64)', nopython=True, parallel=True)
+def create_Delta_S2(W):
+    delta_S2 = np.zeros((5), dtype=np.float64)
+
+    for i in prange(0, 4):
+        delta_S2[i] = 5.22e-3 * (1.0 - 0.00748 * (np.power(37.0 - FREQ[i], 1.3))) * W
+
+    delta_S2[4] = 5.22e-3 * W
+
+    for i in prange(0, 5):
+        if delta_S2[i] > 0.069:
+            delta_S2[i] = 0.069
+
+    return delta_S2

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from dmi.sst.mw_oe.fw_model import FwModel
+from dmi.sst.mw_oe.fw_model import FwModel, create_Delta_S2, calc_F_vertical, MC_M, calc_F_horizontal, calc_sig_TS_TV, calc_T_V
 
 
 class FwModelTest(unittest.TestCase):
@@ -145,30 +145,30 @@ class FwModelTest(unittest.TestCase):
         self.assertAlmostEqual(274.2, self.fw_model.calc_open_water_temp(0.047, 274.2), 8)
 
     def test_calc_T_V(self):
-        self.assertAlmostEqual(301.14977223818812, self.fw_model.calc_T_V(47.3), 8)
-        self.assertAlmostEqual(301.08790967395691, self.fw_model.calc_T_V(46.1), 8)
-        self.assertAlmostEqual(301.16, self.fw_model.calc_T_V(51.2), 8)
+        self.assertAlmostEqual(301.14977223818812, calc_T_V(47.3), 8)
+        self.assertAlmostEqual(301.08790967395691, calc_T_V(46.1), 8)
+        self.assertAlmostEqual(301.16, calc_T_V(51.2), 8)
 
     def test_calc_sig_TS_TV(self):
-        self.assertAlmostEqual(0.545876967999981, self.fw_model.calc_sig_TS_TV(301.68, 301.16), 8)
-        self.assertAlmostEqual(14.0, self.fw_model.calc_sig_TS_TV(321.68, 301.16), 8)
+        self.assertAlmostEqual(0.545876967999981, calc_sig_TS_TV(301.68, 301.16), 8)
+        self.assertAlmostEqual(14.0, calc_sig_TS_TV(321.68, 301.16), 8)
 
     def test_calc_F_horizontal(self):
-        F_H = self.fw_model.calc_F_horizontal(6.0041)
+        F_H = calc_F_horizontal(6.0041, MC_M)
         self.assertAlmostEqual(0.0120082, F_H[0], 8)
         self.assertAlmostEqual(0.0120082, F_H[1], 8)
         self.assertAlmostEqual(0.017592013, F_H[2], 8)
         self.assertAlmostEqual(0.018492628, F_H[3], 8)
         self.assertAlmostEqual(0.019753489, F_H[4], 8)
 
-        F_H = self.fw_model.calc_F_horizontal(8.32)
+        F_H = calc_F_horizontal(8.32, MC_M)
         self.assertAlmostEqual(0.01733696, F_H[0], 8)
         self.assertAlmostEqual(0.01733696, F_H[1], 8)
         self.assertAlmostEqual(0.0250100912, F_H[2], 8)
         self.assertAlmostEqual(0.0262389248, F_H[3], 8)
         self.assertAlmostEqual(0.0279495344, F_H[4], 8)
 
-        F_H = self.fw_model.calc_F_horizontal(12.46)
+        F_H = calc_F_horizontal(12.46, MC_M)
         self.assertAlmostEqual(0.03676, F_H[0], 8)
         self.assertAlmostEqual(0.03676, F_H[1], 8)
         self.assertAlmostEqual(0.0472526, F_H[2], 8)
@@ -176,21 +176,21 @@ class FwModelTest(unittest.TestCase):
         self.assertAlmostEqual(0.050791, F_H[4], 8)
 
     def test_calc_F_vertical(self):
-        F_V = self.fw_model.calc_F_vertical(2.95)
+        F_V = calc_F_vertical(2.95, MC_M)
         self.assertAlmostEqual(0.00059, F_V[0], 8)
         self.assertAlmostEqual(0.00059, F_V[1], 8)
         self.assertAlmostEqual(0.00413, F_V[2], 8)
         self.assertAlmostEqual(0.005251, F_V[3], 8)
         self.assertAlmostEqual(0.0075815, F_V[4], 8)
 
-        F_V = self.fw_model.calc_F_vertical(6.0041)
+        F_V = calc_F_vertical(6.0041, MC_M)
         self.assertAlmostEqual(0.0045599829237222226, F_V[0], 8)
         self.assertAlmostEqual(0.0045599829237222226, F_V[1], 8)
         self.assertAlmostEqual(0.011393890899311112, F_V[2], 8)
         self.assertAlmostEqual(0.013454847155066667, F_V[3], 8)
         self.assertAlmostEqual(0.017656609146466665, F_V[4], 8)
 
-        F_V = self.fw_model.calc_F_vertical(12.773)
+        F_V = calc_F_vertical(12.773, MC_M)
         self.assertAlmostEqual(0.0378837, F_V[0], 8)
         self.assertAlmostEqual(0.0378837, F_V[1], 8)
         self.assertAlmostEqual(0.04930928, F_V[2], 8)
@@ -198,7 +198,7 @@ class FwModelTest(unittest.TestCase):
         self.assertAlmostEqual(0.05623873, F_V[4], 8)
 
     def test_create_Delta_S2(self):
-        Delta_S2 = self.fw_model.create_Delta_S2(6.0041)
+        Delta_S2 = create_Delta_S2(6.0041)
 
         self.assertAlmostEqual(0.011771282646377359 , Delta_S2[0], 8)
         self.assertAlmostEqual(0.014858456479049636, Delta_S2[1], 8)
