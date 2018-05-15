@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from dmi.sst.mw_oe.fw_model import FwModel, create_Delta_S2, calc_F_vertical, MC_M, calc_F_horizontal, calc_sig_TS_TV, calc_T_V
+from dmi.sst.mw_oe.fw_model import FwModel, create_Delta_S2, calc_F_vertical, MC_M, calc_F_horizontal, calc_sig_TS_TV, calc_T_V, calc_open_water_temp, calc_ice_temp, clamp_to_0_1
 
 
 class FwModelTest(unittest.TestCase):
@@ -17,14 +17,13 @@ class FwModelTest(unittest.TestCase):
         V = np.float64(59.2188758850098)
         L = np.float64(0.153278715134895)
         T_ow = np.float64(301.679042997567)
-        T_is = np.float64(0.0)
         C_is = np.float64(0.0)
         F_MY = np.float64(0.0)
         theta_d = np.float64(55.19)
         sss = np.float64(35.0)
         phi_rd = np.float64(78.1866134486559)
 
-        T_B = self.fw_model.run(W, V, L, T_ow, T_is, C_is, F_MY, theta_d, sss, phi_rd)
+        T_B = self.fw_model.run(W, V, L, T_ow, C_is, F_MY, theta_d, sss, phi_rd)
         self.assertAlmostEqual(174.3105533738344, T_B[0], 8)
         self.assertAlmostEqual(85.0439810190417, T_B[1], 8)
         self.assertAlmostEqual(180.1464585650745, T_B[2], 8)
@@ -41,14 +40,13 @@ class FwModelTest(unittest.TestCase):
         V = np.float64(26.8414897918701)
         L = np.float64(0.210529339037996)
         T_ow = np.float64(291.330501737802)
-        T_is = np.float64(273.15)
         C_is = np.float64(0.0)
         F_MY = np.float64(0.0)
         theta_d = np.float64(55.23)
         sss = np.float64(34.304)
         phi_rd = np.float64(359.01513331183)
 
-        T_B = self.fw_model.run(W, V, L, T_ow, T_is, C_is, F_MY, theta_d, sss, phi_rd)
+        T_B = self.fw_model.run(W, V, L, T_ow, C_is, F_MY, theta_d, sss, phi_rd)
         self.assertAlmostEqual(168.1790937616704, T_B[0], 8)
         self.assertAlmostEqual(83.562224564839198, T_B[1], 8)
         self.assertAlmostEqual(173.36355388590096, T_B[2], 8)
@@ -65,14 +63,13 @@ class FwModelTest(unittest.TestCase):
         V = np.float64(51.8229067300751)
         L = np.float64(-0.0104714243105632)
         T_ow = np.float64(301.499473924529)
-        T_is = np.float64(273.15)
         C_is = np.float64(0.0)
         F_MY = np.float64(0.0)
         theta_d = np.float64(55.19)
         sss = np.float64(34.569)
         phi_rd = np.float64(78.1866134486559)
 
-        T_B = self.fw_model.run(W, V, L, T_ow, T_is, C_is, F_MY, theta_d, sss, phi_rd)
+        T_B = self.fw_model.run(W, V, L, T_ow, C_is, F_MY, theta_d, sss, phi_rd)
         self.assertAlmostEqual(178.63428456988697, T_B[0], 8)
         self.assertAlmostEqual(94.286215709850694, T_B[1], 8)
         self.assertAlmostEqual(183.97655135092168, T_B[2], 8)
@@ -88,14 +85,13 @@ class FwModelTest(unittest.TestCase):
         V = np.float64(54.0632878810604)
         L = np.float64(-0.0340107990629162)
         T_ow = np.float64(302.427070713692)
-        T_is = np.float64(273.15)
         C_is = np.float64(0.0)
         F_MY = np.float64(0.0)
         theta_d = np.float64(55.025)
         sss = np.float64(34.783)
         phi_rd = np.float64(106.824341933135)
 
-        T_B = self.fw_model.run(W, V, L, T_ow, T_is, C_is, F_MY, theta_d, sss, phi_rd)
+        T_B = self.fw_model.run(W, V, L, T_ow, C_is, F_MY, theta_d, sss, phi_rd)
         self.assertAlmostEqual(174.02408270745502, T_B[0], 8)
         self.assertAlmostEqual(82.620484329423562, T_B[1], 8)
         self.assertAlmostEqual(178.98507496158049, T_B[2], 8)
@@ -112,14 +108,13 @@ class FwModelTest(unittest.TestCase):
         V = np.float64(35.6279405574965)
         L = np.float64(0.44920225229521)
         T_ow = np.float64(293.231309246535)
-        T_is = np.float64(0.0)
         C_is = np.float64(0.0)
         F_MY = np.float64(0.0)
         theta_d = np.float64(54.965)
         sss = np.float64(34.541)
         phi_rd = np.float64(112.33381762016)
 
-        T_B = self.fw_model.run(W, V, L, T_ow, T_is, C_is, F_MY, theta_d, sss, phi_rd)
+        T_B = self.fw_model.run(W, V, L, T_ow, C_is, F_MY, theta_d, sss, phi_rd)
         self.assertAlmostEqual(173.51015635688213, T_B[0], 8)
         self.assertAlmostEqual(93.1912323887413552, T_B[1], 8)
         self.assertAlmostEqual(180.08082505479217, T_B[2], 8)
@@ -131,18 +126,18 @@ class FwModelTest(unittest.TestCase):
         self.assertAlmostEqual(237.99591973154543, T_B[8], 8)
 
     def test_clamp_to_o_1(self):
-        self.assertAlmostEqual(0.8, self.fw_model.clamp_to_0_1(0.8), 8)
-        self.assertAlmostEqual(0.0, self.fw_model.clamp_to_0_1(-0.1), 8)
-        self.assertAlmostEqual(1.0, self.fw_model.clamp_to_0_1(1.1), 8)
+        self.assertAlmostEqual(0.8, clamp_to_0_1(0.8), 8)
+        self.assertAlmostEqual(0.0, clamp_to_0_1(-0.1), 8)
+        self.assertAlmostEqual(1.0, clamp_to_0_1(1.1), 8)
 
     def test_calc_ice_temp(self):
-        self.assertAlmostEqual(273.15, self.fw_model.calc_ice_temp(274.2), 8)
-        self.assertAlmostEqual(272.08, self.fw_model.calc_ice_temp(272.2), 8)
-        self.assertAlmostEqual(271.628, self.fw_model.calc_ice_temp(271.07), 8)
+        self.assertAlmostEqual(273.15, calc_ice_temp(274.2), 8)
+        self.assertAlmostEqual(272.08, calc_ice_temp(272.2), 8)
+        self.assertAlmostEqual(271.628, calc_ice_temp(271.07), 8)
 
     def test_calc_open_water_temp(self):
-        self.assertAlmostEqual(273.15, self.fw_model.calc_open_water_temp(0.08, 274.2), 8)
-        self.assertAlmostEqual(274.2, self.fw_model.calc_open_water_temp(0.047, 274.2), 8)
+        self.assertAlmostEqual(273.15, calc_open_water_temp(0.08, 274.2), 8)
+        self.assertAlmostEqual(274.2, calc_open_water_temp(0.047, 274.2), 8)
 
     def test_calc_T_V(self):
         self.assertAlmostEqual(301.14977223818812, calc_T_V(47.3), 8)

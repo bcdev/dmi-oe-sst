@@ -58,7 +58,7 @@ class Retrieval:
             # Calculate brightness temps on basis of the first guess,
             # our starting point for the iteration by the forward function
             # ------------------------------------------------------
-            T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])
+            T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, theta_d, sss, phi_rd[matchup_index])
 
             # ----------------------------------------------
             # Obs - calc, also needed to start the iteration
@@ -97,10 +97,10 @@ class Retrieval:
                 # -------------------
                 # Calculate Jacobians
                 # -------------------
-                K[:, 0] = (T_A0 - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[0, 2] - p[0, 1])
-                K[:, 1] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[1, 2] - p[1, 1])
-                K[:, 2] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[2, 2] - p[2, 1])
-                K[:, 3] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[3, 2] - p[3, 1])
+                K[:, 0] = (T_A0 - self.fw_model.run(p[0, 1], p[1, 2], p[2, 2], p[3, 2], sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[0, 2] - p[0, 1])
+                K[:, 1] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 1], p[2, 2], p[3, 2], sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[1, 2] - p[1, 1])
+                K[:, 2] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 1], p[3, 2], sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[2, 2] - p[2, 1])
+                K[:, 3] = (T_A0 - self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 1], sw, sw, theta_d, sss, phi_rd[matchup_index])) / (p[3, 2] - p[3, 1])
 
                 # ---------------------
                 # Calculate delta p
@@ -172,7 +172,7 @@ class Retrieval:
                 # atmospheric parameters in the updated retrieval vector
                 # They are calculated by using the forward model
                 # ------------------------------------------------------
-                T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, sw, theta_d, sss, phi_rd[matchup_index])
+                T_A0 = self.fw_model.run(p[0, 2], p[1, 2], p[2, 2], p[3, 2], sw, sw, theta_d, sss, phi_rd[matchup_index])
 
                 # --------------------------------------------
                 # How much do the updated simulated brightness
