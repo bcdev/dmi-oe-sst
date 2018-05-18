@@ -33,16 +33,16 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
         target_data = xr.open_dataset(self.expected_target_file, decode_times=False)
         try:
             variable = target_data["j"]
-            self.assertAlmostEqual(22.504837, variable.data[118, 0], 7)
-            self.assertAlmostEqual(13.011457, variable.data[118, 1], 6)
+            self.assertAlmostEqual(22.505741, variable.data[118, 0], 6)
+            self.assertAlmostEqual(13.014329, variable.data[118, 1], 6)
 
             variable = target_data["tb_rmse_ite"]
-            self.assertAlmostEqual(0.74872094, variable.data[119, 2], 8)
+            self.assertAlmostEqual(0.7479118, variable.data[119, 2], 7)
             self.assertTrue(np.isnan(variable.data[119, 3]))
 
             variable = target_data["tb_rmse_ite0"]
-            self.assertAlmostEqual(4.7365136, variable.data[120], 6)
-            self.assertAlmostEqual(6.5495081, variable.data[121], 7)
+            self.assertAlmostEqual(4.736254, variable.data[120], 6)
+            self.assertAlmostEqual(6.549006, variable.data[121], 7)
 
             variable = target_data["tb_chi_ite"]
             self.assertTrue(np.isnan(variable.data[122, 3]))
@@ -61,28 +61,28 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertTrue(np.isnan(variable.data[129, 6]))
 
             variable = target_data["dtb_ite0"]
-            self.assertAlmostEqual(17.06531, variable.data[130, 7], 6)
-            self.assertAlmostEqual(-0.030384755, variable.data[131, 8], 8)
+            self.assertAlmostEqual(17.065277, variable.data[130, 7], 6)
+            self.assertAlmostEqual(-0.029170848, variable.data[131, 8], 8)
 
             variable = target_data["TA0_ite0"]
-            self.assertAlmostEqual(158.90785, variable.data[132, 9], 5)
-            self.assertAlmostEqual(157.05952, variable.data[133, 0], 5)
+            self.assertAlmostEqual(158.90617, variable.data[132, 9], 5)
+            self.assertAlmostEqual(157.06029, variable.data[133, 0], 5)
 
             variable = target_data["j_ite0"]
-            self.assertAlmostEqual(9482.5068, variable.data[134], 4)
-            self.assertAlmostEqual(9604.834, variable.data[135], 4)
+            self.assertAlmostEqual(9482.511, variable.data[134], 3)
+            self.assertAlmostEqual(9604.835, variable.data[135], 4)
 
             variable = target_data["AK"]
-            self.assertAlmostEqual(0.8624385, variable.data[136, 1], 8)
+            self.assertAlmostEqual(0.86243814, variable.data[136, 1], 8)
             self.assertAlmostEqual(0.99990416, variable.data[137, 2], 8)
 
             variable = target_data["chisq"]
-            self.assertAlmostEqual(0.61820823, variable.data[138], 8)
-            self.assertAlmostEqual(0.68999028, variable.data[139], 8)
+            self.assertAlmostEqual(0.61924624, variable.data[138], 8)
+            self.assertAlmostEqual(0.6914389, variable.data[139], 7)
 
             variable = target_data["tb_rmse"]
-            self.assertAlmostEqual(0.30278438, variable.data[140], 8)
-            self.assertAlmostEqual(0.30981407, variable.data[141], 8)
+            self.assertAlmostEqual(0.30289936, variable.data[140], 8)
+            self.assertAlmostEqual(0.30990422, variable.data[141], 8)
 
             variable = target_data["p"]
             self.assertTrue(np.isnan(variable.data[142, 3]))
@@ -97,7 +97,7 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertTrue(np.isnan(variable.data[147, 5]))
 
             variable = target_data["dtb"]
-            self.assertAlmostEqual(-0.15789826, variable.data[148, 6], 8)
+            self.assertAlmostEqual(-0.1574104, variable.data[148, 6], 8)
             self.assertTrue(np.isnan(variable.data[149, 7]))
 
             variable = target_data["ds"]

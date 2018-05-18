@@ -7,6 +7,10 @@ from dmi.sst.mw_oe.pressure_processor import PressureProcessor
 from dmi.sst.util.default_data import DefaultData
 
 
+DEG_TO_RAD = np.pi / np.float64(180.0)
+RAD_TO_DEG = np.float64(180.0) / np.pi
+
+
 class Preprocessor:
     TO_SQUEEZE_NAMES = ["insitu.time", "insitu.lat", "insitu.lon", "insitu.sea_surface_temperature", "insitu.sst_depth", "insitu.sst_qc_flag", "insitu.sst_track_flag]"]
     TO_AVERAGE_NAMES = ["amsre.brightness_temperature6V", "amsre.brightness_temperature6H", "amsre.brightness_temperature10V", "amsre.brightness_temperature10H", "amsre.brightness_temperature18V",
@@ -218,7 +222,9 @@ class Preprocessor:
         if phi_sat < 0.0:
             phi_sat = phi_sat + 360.0
 
-        phi_w = 90.0 - np.arctan2(north_wind, east_wind)
+        north_wind_rad = north_wind * DEG_TO_RAD
+        east_wind_rad = east_wind * DEG_TO_RAD
+        phi_w = 90.0 - np.arctan2(north_wind_rad, east_wind_rad) * DEG_TO_RAD
         if phi_w < 0.0:
             phi_w = phi_w + 360.0
 
