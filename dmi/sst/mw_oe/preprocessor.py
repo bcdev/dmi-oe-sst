@@ -13,14 +13,15 @@ RAD_TO_DEG = np.float64(180.0) / np.pi
 
 class Preprocessor:
     TO_SQUEEZE_NAMES = ["insitu.time", "insitu.lat", "insitu.lon", "insitu.sea_surface_temperature", "insitu.sst_depth", "insitu.sst_qc_flag", "insitu.sst_track_flag]"]
-    TO_AVERAGE_NAMES = ["amsre.brightness_temperature6V", "amsre.brightness_temperature6H", "amsre.brightness_temperature10V", "amsre.brightness_temperature10H", "amsre.brightness_temperature18V",
-                        "amsre.brightness_temperature18H", "amsre.brightness_temperature23V", "amsre.brightness_temperature23H", "amsre.brightness_temperature36V", "amsre.brightness_temperature36H"]
-    TO_STDDEV_NAMES = ["amsre.brightness_temperature23V", "amsre.brightness_temperature23H", "amsre.brightness_temperature36V", "amsre.brightness_temperature36H"]
+    TO_AVERAGE_NAMES = []
     TO_CENTER_EXTRACT_NAMES = ["amsre.nwp.sea_surface_temperature", "amsre.nwp.skin_temperature", "amsre.nwp.log_surface_pressure", "amsre.nwp.cloud_liquid_water",
                                "amsre.nwp.total_column_water_vapour", "amsre.nwp.total_precip", "amsre.pixel_data_quality6V", "amsre.pixel_data_quality6H", "amsre.pixel_data_quality10V",
                                "amsre.pixel_data_quality10H", "amsre.pixel_data_quality18V", "amsre.pixel_data_quality18H", "amsre.pixel_data_quality23V", "amsre.pixel_data_quality23H",
                                "amsre.pixel_data_quality36V", "amsre.pixel_data_quality36H", "amsre.solar_zenith_angle", "amsre.scan_data_quality", "amsre.satellite_zenith_angle",
-                               "amsre.satellite_azimuth_angle", "amsre.Geostationary_Reflection_Latitude", "amsre.Geostationary_Reflection_Longitude", "amsre.latitude", "amsre.longitude"]
+                               "amsre.satellite_azimuth_angle", "amsre.Geostationary_Reflection_Latitude", "amsre.Geostationary_Reflection_Longitude", "amsre.latitude", "amsre.longitude",
+                               "amsre.brightness_temperature6V", "amsre.brightness_temperature6H", "amsre.brightness_temperature10V", "amsre.brightness_temperature10H", "amsre.brightness_temperature18V",
+                               "amsre.brightness_temperature18H", "amsre.brightness_temperature23V", "amsre.brightness_temperature23H", "amsre.brightness_temperature36V", "amsre.brightness_temperature36H"]
+    TO_STDDEV_NAMES = ["amsre.brightness_temperature23V", "amsre.brightness_temperature23H", "amsre.brightness_temperature36V", "amsre.brightness_temperature36H"]
     WIND_SPEED_VARIABLES = ["amsre.nwp.10m_east_wind_component", "amsre.nwp.10m_north_wind_component"]
     NWP_SST_VARIABLES = ["amsre.nwp.sea_surface_temperature"]
     FILENAME_VARIABLES = ["amsre.l2a_filename"]
@@ -49,6 +50,8 @@ class Preprocessor:
                 self.extract_center_px(dataset, preprocessed_data, variable_name)
                 self.convert_temperature(preprocessed_data, variable_name)
                 self.apply_sst_nwp_bias(preprocessed_data, variable_name)
+                if variable_name in self.TO_STDDEV_NAMES:
+                    self.calc_std_dev(dataset, preprocessed_data, variable_name, flag_coding)
                 continue
 
             if variable_name in self.WIND_SPEED_VARIABLES:

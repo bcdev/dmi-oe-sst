@@ -5,12 +5,12 @@ from dmi.sst.mw_oe.fw_model import FwModel
 
 
 class Retrieval:
-    S_p = np.array([[16.0, 0, 0, 0], [0, 0.81, 0, 0], [0, 0, 0.25, 0], [0, 0, 0, 1.21]], dtype=np.float64)
-    S_e = np.array([[0.4823, 0.3687, 0.2836, 0.0156, 0.1638, -0.2592, 0.2384, -0.2011, 0.288, -0.137], [0.3687, 0.5226, 0.1111, -0.0448, -0.02, -0.3407, 0.1343, -0.186, 0.2587, -0.0062],
-                    [0.2836, 0.1111, 0.3138, 0.0954, 0.2486, -0.0668, 0.1867, -0.1835, 0.202, -0.1610], [0.0156, -0.0448, 0.0954, 0.1305, 0.0505, 0.0452, -0.0156, -0.1091, 0.0216, -0.0086],
-                    [0.1638, -0.02, 0.2486, 0.0505, 0.3760, 0.1330, 0.2045, -0.0717, 0.1701, -0.2019], [-0.2592, -0.3407, -0.0668, 0.0452, 0.133, 0.4228, -0.093, 0.122, -0.1498, 0.0071],
-                    [0.2384, 0.1343, 0.1867, -0.0156, 0.2045, -0.093, 0.3748, 0.072, 0.2224, -0.2381], [-0.2011, -0.186, -0.1835, -0.1091, -0.0717, 0.122, 0.072, 0.5355, -0.1265, -0.0137],
-                    [0.288, 0.2587, 0.202, 0.0216, 0.1701, -0.1498, 0.2224, -0.1265, 0.2939, -0.1433], [-0.137, -0.0062, -0.161, -0.0086, -0.2019, 0.0071, -0.2381, -0.0137, -0.1433, 0.2279]],
+    S_p = np.array([[4.0, 0, 0, 0], [0, 0.81, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 0.25]], dtype=np.float64)
+    S_e = np.array([[0.1162, 0.1268, 0.0412, -0.0286, 0.0082, -0.1338, 0.0843, -0.0531, 0.1071, -0.0015], [0.1268, 0.3069, -0.0340, -0.0689, -0.0689, -0.2258, 0.0927, -0.0562, 0.1590, 0.0238],
+                    [0.0412, -0.0340, 0.1181, 0.0389, 0.0982, -0.0243, 0.0736, -0.0818, 0.0788, -0.0389], [-0.0286, -0.0689, 0.0389, 0.0903, 0.0007, 0.0336, -0.0187, -0.0411, -0.0146, -0.0007],
+                    [0.0082, -0.0689, 0.0982, 0.0007, 0.2283, 0.0695, 0.1010, -0.1069, 0.1127, -0.1001], [-0.1338, -0.2258, -0.0243, 0.0336, 0.0695, 0.2816, -0.1257, 0.0015, -0.1481, -0.0215],
+                    [0.0843, 0.0927, 0.0736, -0.0187, 0.1010, -0.1257, 0.2706, -0.0278, 0.2024, -0.1039], [-0.0531, -0.0562, -0.0818, -0.0411, -0.1069, 0.0015, -0.0278, 0.2591, -0.1137, -0.0009],
+                    [0.1071, 0.1590, 0.0788, -0.0146, 0.1127, -0.1481, 0.2024, -0.1137, 0.2771, -0.0935], [-0.0015, 0.0238, -0.0389, -0.0007, -0.1001, -0.0215, -0.1039, -0.0009, -0.0935, 0.0902]],
                    dtype=np.float64)
     S_p_inv = None
     S_e_inv = None
@@ -248,18 +248,18 @@ class Retrieval:
             results.dtb_ite0.data[matchup_index, :] = dtb_ite0
             results.TA0_ite0.data[matchup_index, :] = T_A0_ite0
             results.j_ite0[matchup_index] = j_ite_0[matchup_index]
-            
+
             last_iteration = convergence_passed_idx - 1
-            results.AK[matchup_index,:] = np.diagonal(AKi[last_iteration, :, :])
+            results.AK[matchup_index, :] = np.diagonal(AKi[last_iteration, :, :])
             results.chisq[matchup_index] = chi[last_iteration]
             results.tb_rmse[matchup_index] = test[last_iteration]
-            results.p[matchup_index,:] = ite_p[last_iteration, :]
-            results.S[matchup_index,:] = ite_Std_inv[last_iteration, :]
-            results.tb_sim[matchup_index,:] = ite_TA0[last_iteration, :]
-            results.dtb[matchup_index,:] = -ite_Delta_T[last_iteration, :]
+            results.p[matchup_index, :] = ite_p[last_iteration, :]
+            results.S[matchup_index, :] = ite_Std_inv[last_iteration, :]
+            results.tb_sim[matchup_index, :] = ite_TA0[last_iteration, :]
+            results.dtb[matchup_index, :] = -ite_Delta_T[last_iteration, :]
             results.ds[matchup_index] = dsi[last_iteration]
             results.dn[matchup_index] = dni[last_iteration]
-            results.K4[matchup_index,:] = K[:,3]
+            results.K4[matchup_index, :] = K[:, 3]
             results.ite_index[matchup_index] = convergence_passed_idx
 
         return results

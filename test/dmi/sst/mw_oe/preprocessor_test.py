@@ -115,39 +115,39 @@ class PreprocessorTest(unittest.TestCase):
 
         variable = prep_data.variables["amsre.brightness_temperature6H"]
         self.assertEqual((4,), variable.shape)
-        self.assertAlmostEqual(106.04348, variable.data[0], 5)
+        self.assertAlmostEqual(106.0, variable.data[0], 5)
 
         flags = flag_coding.get_flags()
         self.assertEqual(0, flags[0])
-
-    def test_run_average_variables_too_many_invalid(self):
-        fill_value = -79
-
-        data = DefaultData.create_default_array_3d(5, 5, 4, np.float32)
-        data[0, 0, :] = 104
-        data[0, 1, :] = 105
-        data[0, 2, :] = 106
-        data[0, 3, :] = 107
-        data[0, 4, :] = 108
-
-        data[0, 3, 0] = fill_value
-        data[0, 3, 1] = fill_value
-        data[0, 3, 2] = fill_value
-        data[0, 4, 1] = fill_value
-        variable = Variable(["matchup_count", "ny", "nx"], data)
-        variable.attrs["_FillValue"] = fill_value
-        self.dataset["amsre.brightness_temperature6H"] = variable
-
-        flag_coding = FlagCoding(4)
-
-        prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
-
-        variable = prep_data.variables["amsre.brightness_temperature6H"]
-        self.assertEqual((4,), variable.shape)
-        self.assertAlmostEqual(fill_value, variable.data[0], 5)
-
-        flags = flag_coding.get_flags()
-        self.assertEqual(1, flags[0])
+# the current implementation does not use averaging tb 2018-05-21
+    # def test_run_average_variables_too_many_invalid(self):
+    #     fill_value = -79
+    #
+    #     data = DefaultData.create_default_array_3d(5, 5, 4, np.float32)
+    #     data[0, 0, :] = 104
+    #     data[0, 1, :] = 105
+    #     data[0, 2, :] = 106
+    #     data[0, 3, :] = 107
+    #     data[0, 4, :] = 108
+    #
+    #     data[0, 3, 0] = fill_value
+    #     data[0, 3, 1] = fill_value
+    #     data[0, 3, 2] = fill_value
+    #     data[0, 4, 1] = fill_value
+    #     variable = Variable(["matchup_count", "ny", "nx"], data)
+    #     variable.attrs["_FillValue"] = fill_value
+    #     self.dataset["amsre.brightness_temperature6H"] = variable
+    #
+    #     flag_coding = FlagCoding(4)
+    #
+    #     prep_data = self.preprocessor.run(self.dataset, flag_coding=flag_coding)
+    #
+    #     variable = prep_data.variables["amsre.brightness_temperature6H"]
+    #     self.assertEqual((4,), variable.shape)
+    #     self.assertAlmostEqual(fill_value, variable.data[0], 5)
+    #
+    #     flags = flag_coding.get_flags()
+    #     self.assertEqual(1, flags[0])
 
     def test_run_total_column_water_vapour(self):
         self.dataset = xr.Dataset()
