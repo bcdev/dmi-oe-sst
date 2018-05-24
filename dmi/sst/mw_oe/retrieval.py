@@ -248,14 +248,15 @@ class Retrieval:
             results.dtb_ite0.data[matchup_index, :] = dtb_ite0
             results.TA0_ite0.data[matchup_index, :] = T_A0_ite0
             results.j_ite0[matchup_index] = j_ite_0[matchup_index]
+            results.y[matchup_index, :] = T_A[matchup_index, :]
 
             last_iteration = convergence_passed_idx - 1
-            results.AK[matchup_index, :] = np.diagonal(AKi[last_iteration, :, :])
+            results.A[matchup_index, :] = np.diagonal(AKi[last_iteration, :, :])
             results.chisq[matchup_index] = chi[last_iteration]
-            results.tb_rmse[matchup_index] = test[last_iteration]
-            results.p[matchup_index, :] = ite_p[last_iteration, :]
+            results.mu_sst[matchup_index] = test[last_iteration] * np.float64(0.55)
+            results.x[matchup_index, :] = ite_p[last_iteration, :]
             results.S[matchup_index, :] = ite_Std_inv[last_iteration, :]
-            results.tb_sim[matchup_index, :] = ite_TA0[last_iteration, :]
+            results.F[matchup_index, :] = ite_TA0[last_iteration, :]
             results.dtb[matchup_index, :] = -ite_Delta_T[last_iteration, :]
             results.ds[matchup_index] = dsi[last_iteration]
             results.dn[matchup_index] = dni[last_iteration]

@@ -110,87 +110,91 @@ class MwOeSstProcessor:
 
         # j
         variable = MwOeSstProcessor._create_2d_float_variable(max_iterations, num_matchups)
-        dataset["j"] = variable
+        dataset["j"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # tb_rmse_ite
         variable = MwOeSstProcessor._create_2d_float_variable(max_iterations, num_matchups)
-        dataset["tb_rmse_ite"] = variable
+        dataset["tb_rmse_ite"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # tb_rmse_ite0
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["tb_rmse_ite0"] = variable
+        dataset["tb_rmse_ite0"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # tb_chi_ite
         variable = MwOeSstProcessor._create_2d_float_variable(max_iterations, num_matchups)
-        dataset["tb_chi_ite"] = variable
+        dataset["tb_chi_ite"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # convergence_passed_flag
         variable = MwOeSstProcessor._create_vector_uint8_variable(num_matchups)
-        dataset["convergence_passed_flag"] = variable
+        dataset["convergence_passed_flag"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # convergence_passed_idx
         variable = MwOeSstProcessor._create_vector_uint8_variable(num_matchups)
-        dataset["convergence_passed_idx"] = variable
+        dataset["convergence_passed_idx"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # di2
         variable = MwOeSstProcessor._create_2d_float_variable(max_iterations, num_matchups)
-        dataset["di2"] = variable
+        dataset["di2"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # dtb_ite0
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["dtb_ite0"] = variable
+        dataset["dtb_ite0"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # TA0_ite0
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["TA0_ite0"] = variable
+        dataset["TA0_ite0"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # j_ite0
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["j_ite0"] = variable
+        dataset["j_ite0"] = variable # todo 1 tb/tb remove 2018-05-24
 
-        # AK
+        # A
         variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
-        dataset["AK"] = variable
+        dataset["A"] = variable
 
         # chisq
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["chisq"] = variable
+        dataset["chisq"] = variable # todo 1 tb/tb remove 2018-05-24
 
-        # tb_rmse
+        # mu_sst
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["tb_rmse"] = variable
+        dataset["mu_sst"] = variable
 
-        # p
+        # x - retrieved state vector
         variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
-        dataset["p"] = variable
+        dataset["x"] = variable
 
         # S
         variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
-        dataset["S"] = variable
+        dataset["S"] = variable # todo 1 tb/tb remove 2018-05-24
 
-        # tb_sim
+        # F(x) - simulated brightness temperatures from final iteration
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["tb_sim"] = variable
+        dataset["F"] = variable
+
+        # y - observed brightness temperatures
+        variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
+        dataset["y"] = variable
 
         # dtb
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["dtb"] = variable
+        dataset["dtb"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # ds
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["ds"] = variable
+        dataset["ds"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # dn
         variable = MwOeSstProcessor._create_vector_float32_variable(num_matchups)
-        dataset["dn"] = variable
+        dataset["dn"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # K4
         variable = MwOeSstProcessor._create_2d_float_variable(num_bt, num_matchups, dims_names=["matchup", "num_bt"])
-        dataset["K4"] = variable
+        dataset["K4"] = variable # todo 1 tb/tb remove 2018-05-24
 
         # ite_index
         variable = MwOeSstProcessor._create_vector_uint8_variable(num_matchups)
-        dataset["ite_index"] = variable
+        dataset["ite_index"] = variable # todo 1 tb/tb remove 2018-05-24
 
         return dataset
 

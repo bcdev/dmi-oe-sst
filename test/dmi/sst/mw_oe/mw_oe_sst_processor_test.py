@@ -6,6 +6,7 @@ from dmi.sst.mw_oe.mw_oe_sst_processor import MwOeSstProcessor
 
 
 class MwOeMMDProcessorTest(unittest.TestCase):
+
     def test_create_result_structure(self):
         result = MwOeSstProcessor._create_result_structure(22, 5, 10)
         self.assertIsNotNone(result)
@@ -70,10 +71,10 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertTrue(np.isnan(j_ite0.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        AK = result.variables["AK"]
-        self.assertEqual((22, 4), AK.shape)
-        self.assertTrue(np.isnan(AK.data[7, 0]))
-        self.assertTrue(np.isnan(AK.attrs["_FillValue"]))
+        A = result.variables["A"]
+        self.assertEqual((22, 4), A.shape)
+        self.assertTrue(np.isnan(A.data[7, 0]))
+        self.assertTrue(np.isnan(A.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
         chisq = result.variables["chisq"]
@@ -82,16 +83,16 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertTrue(np.isnan(chisq.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        tb_rmse = result.variables["tb_rmse"]
-        self.assertEqual((22,), tb_rmse.shape)
-        self.assertTrue(np.isnan(tb_rmse.data[8]))
-        self.assertTrue(np.isnan(tb_rmse.attrs["_FillValue"]))
+        mu_sst = result.variables["mu_sst"]
+        self.assertEqual((22,), mu_sst.shape)
+        self.assertTrue(np.isnan(mu_sst.data[8]))
+        self.assertTrue(np.isnan(mu_sst.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        p = result.variables["p"]
-        self.assertEqual((22, 4), p.shape)
-        self.assertTrue(np.isnan(p.data[8, 1]))
-        self.assertTrue(np.isnan(p.attrs["_FillValue"]))
+        x = result.variables["x"]
+        self.assertEqual((22, 4), x.shape)
+        self.assertTrue(np.isnan(x.data[8, 1]))
+        self.assertTrue(np.isnan(x.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
         S = result.variables["S"]
@@ -100,11 +101,17 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertTrue(np.isnan(S.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        tb_sim = result.variables["tb_sim"]
-        self.assertEqual((22, 10), tb_sim.shape)
-        self.assertTrue(np.isnan(tb_sim.data[6, 7]))
-        self.assertTrue(np.isnan(tb_sim.attrs["_FillValue"]))
+        F = result.variables["F"]
+        self.assertEqual((22, 10), F.shape)
+        self.assertTrue(np.isnan(F.data[6, 7]))
+        self.assertTrue(np.isnan(F.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
+
+        y = result.variables["y"]
+        self.assertEqual((22, 10), y.shape)
+        self.assertTrue(np.isnan(y.data[6, 7]))
+        self.assertTrue(np.isnan(y.attrs["_FillValue"]))
+        # @todo tb/tb request description from DMI and add 2018-05-24
 
         dtb = result.variables["dtb"]
         self.assertEqual((22, 10), dtb.shape)
