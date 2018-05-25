@@ -234,7 +234,6 @@ class Retrieval:
                     # need to add one as the Matlab code counts to basis one, whereas we
                     # are in Python using zero based counting tb 2018-01-08
                     convergence_passed_idx = ite + 1
-
                     break
 
             # collect results into structure
@@ -243,12 +242,13 @@ class Retrieval:
             results.tb_rmse_ite0.data[matchup_index] = tb_rmse_ite0
             results.tb_chi_ite.data[matchup_index, :] = chi
             results.convergence_passed_flag.data[matchup_index] = convergence_passed_flag
-            results.convergence_passed_idx.data[matchup_index] = convergence_passed_idx
+            results.i.data[matchup_index] = convergence_passed_idx
             results.di2.data[matchup_index, :] = di2[matchup_index, :]
             results.dtb_ite0.data[matchup_index, :] = dtb_ite0
             results.TA0_ite0.data[matchup_index, :] = T_A0_ite0
             results.j_ite0[matchup_index] = j_ite_0[matchup_index]
             results.y[matchup_index, :] = T_A[matchup_index, :]
+            results.p0[matchup_index, :] = p_0[:]
 
             last_iteration = convergence_passed_idx - 1
             results.A[matchup_index, :] = np.diagonal(AKi[last_iteration, :, :])

@@ -41,10 +41,10 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertEqual(255, conv_pass_flag.attrs["_FillValue"])
         # @todo tb/tb request description from DMI and add 2017-10-25
 
-        conv_pass_idx = result.variables["convergence_passed_idx"]
-        self.assertEqual((22,), conv_pass_idx.shape)
-        self.assertEqual(255, conv_pass_idx.data[5])
-        self.assertEqual(255, conv_pass_idx.attrs["_FillValue"])
+        i = result.variables["i"]
+        self.assertEqual((22,), i.shape)
+        self.assertEqual(255, i.data[5])
+        self.assertEqual(255, i.attrs["_FillValue"])
         # @todo tb/tb request description from DMI and add 2017-10-25
 
         di2 = result.variables["di2"]
@@ -93,6 +93,12 @@ class MwOeMMDProcessorTest(unittest.TestCase):
         self.assertEqual((22, 4), x.shape)
         self.assertTrue(np.isnan(x.data[8, 1]))
         self.assertTrue(np.isnan(x.attrs["_FillValue"]))
+        # @todo tb/tb request description from DMI and add 2017-10-25
+
+        p0 = result.variables["p0"]
+        self.assertEqual((22, 4), p0.shape)
+        self.assertTrue(np.isnan(p0.data[8, 1]))
+        self.assertTrue(np.isnan(p0.attrs["_FillValue"]))
         # @todo tb/tb request description from DMI and add 2017-10-25
 
         S = result.variables["S"]

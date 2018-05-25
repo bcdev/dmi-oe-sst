@@ -67,10 +67,10 @@ class RetrievalTest(unittest.TestCase):
         self.assertAlmostEqual(4071.0098, result.di2.data[1, 0], 4)
         self.assertAlmostEqual(184.93216, result.di2.data[2, 1], 4)
 
-        self.assertEqual((3,), result.convergence_passed_idx.shape)
-        self.assertEqual(4, result.convergence_passed_idx.data[0])
-        self.assertEqual(3, result.convergence_passed_idx.data[1])
-        self.assertEqual(3, result.convergence_passed_idx.data[2])
+        self.assertEqual((3,), result.i.shape)
+        self.assertEqual(4, result.i.data[0])
+        self.assertEqual(3, result.i.data[1])
+        self.assertEqual(3, result.i.data[2])
 
         self.assertEqual((3,), result.tb_rmse_ite0.shape)
         self.assertAlmostEqual(5.0651402, result.tb_rmse_ite0.data[0], 6)
@@ -111,6 +111,11 @@ class RetrievalTest(unittest.TestCase):
         self.assertAlmostEqual(13.069875, result.x.data[0, 0], 6)
         self.assertAlmostEqual(27.391582, result.x.data[1, 1], 5)
         self.assertAlmostEqual(0.120024666, result.x.data[2, 2], 8)
+
+        self.assertEqual((3, 4), result.p0.shape)
+        self.assertAlmostEqual(26.84149, result.p0.data[1, 1], 6)
+        self.assertAlmostEqual(0.0012591432, result.p0.data[2, 2], 5)
+        self.assertAlmostEqual(301.67905, result.p0.data[0, 3], 5)
 
         self.assertEqual((3, 4), result.S.shape)
         self.assertAlmostEqual(0.123080365, result.S.data[0, 0], 8)

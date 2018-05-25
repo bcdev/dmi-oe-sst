@@ -128,9 +128,9 @@ class MwOeSstProcessor:
         variable = MwOeSstProcessor._create_vector_uint8_variable(num_matchups)
         dataset["convergence_passed_flag"] = variable # todo 1 tb/tb remove 2018-05-24
 
-        # convergence_passed_idx
+        # i - number of iterations
         variable = MwOeSstProcessor._create_vector_uint8_variable(num_matchups)
-        dataset["convergence_passed_idx"] = variable # todo 1 tb/tb remove 2018-05-24
+        dataset["i"] = variable
 
         # di2
         variable = MwOeSstProcessor._create_2d_float_variable(max_iterations, num_matchups)
@@ -163,6 +163,10 @@ class MwOeSstProcessor:
         # x - retrieved state vector
         variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
         dataset["x"] = variable
+
+        # p0 - first guwss NWP
+        variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])
+        dataset["p0"] = variable
 
         # S
         variable = MwOeSstProcessor._create_2d_float_variable(MwOeSstProcessor.KERNEL_SIZE, num_matchups, dims_names=["matchup", "kernel_size"])

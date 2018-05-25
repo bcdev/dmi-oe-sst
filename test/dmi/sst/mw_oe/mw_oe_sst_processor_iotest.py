@@ -52,7 +52,7 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             self.assertEqual(1, variable.data[124])
             self.assertEqual(1, variable.data[125])
 
-            variable = target_data["convergence_passed_idx"]
+            variable = target_data["i"]
             self.assertEqual(3, variable.data[126])
             self.assertEqual(3, variable.data[127])
 
@@ -87,6 +87,10 @@ class MwOeSstProcessorIoTest(unittest.TestCase):
             variable = target_data["x"]
             self.assertTrue(np.isnan(variable.data[142, 3]))
             self.assertTrue(np.isnan(variable.data[143, 0]))
+
+            variable = target_data["p0"]
+            self.assertTrue(np.isnan(variable.data[144, 0]))
+            self.assertTrue(np.isnan(variable.data[145, 1]))
 
             variable = target_data["S"]
             self.assertTrue(np.isnan(variable.data[144, 1]))
