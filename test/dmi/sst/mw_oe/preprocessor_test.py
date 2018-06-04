@@ -208,9 +208,9 @@ class PreprocessorTest(unittest.TestCase):
 
         variable = prep_data.variables["relative_angle"]
         self.assertEqual((11,), variable.shape)
-        self.assertAlmostEqual(278.02078, variable.data[0], 5)
-        self.assertAlmostEqual(279.01932, variable.data[1], 5)
-        self.assertAlmostEqual(280.01834, variable.data[2], 5)
+        self.assertAlmostEqual(346.19858, variable.data[0], 5)
+        self.assertAlmostEqual(342.43494, variable.data[1], 5)
+        self.assertAlmostEqual(340.25513, variable.data[2], 5)
 
     def test_extract_ascending_descending(self):
         data = ["AMSR_E_L2A_BrightnessTemperatures_V12_200807110947_D.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807111125_D.hdf", "AMSR_E_L2A_BrightnessTemperatures_V12_200807112208_A.hdf",
@@ -325,7 +325,7 @@ class PreprocessorTest(unittest.TestCase):
         east_wind = np.float32([-5.89346, 0.18209, -2.37729, -7.10264, -5.17445, 10.23945])
 
         #expecetd = np.float32([193.0293607711792, 286.39101684093475, 111.65561056137085, 102.46056699752808, 282.59845, 42.504668653011322])
-        expecetd = np.float32([190.13147785352797, 284.86707050140893, 109.63588316848497, 105.51573735228001, 280.2025586622923, 42.74571816021417])
+        expecetd = np.float32([359.0658152797106, 13.706713159335692, 227.37746280465814, 287.41219882876635, 59.87234758506031, 28.693549161346255])
 
         for i in range(0, len(phi_sat)):
             phi_rel = self.preprocessor.calculate_relative_angle(phi_sat[i], north_wind[i], east_wind[i])

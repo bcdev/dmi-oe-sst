@@ -227,7 +227,7 @@ class Preprocessor:
 
         north_wind_rad = north_wind * DEG_TO_RAD
         east_wind_rad = east_wind * DEG_TO_RAD
-        phi_w = 90.0 - np.arctan2(north_wind_rad, east_wind_rad) * DEG_TO_RAD
+        phi_w = 90.0 - np.arctan2(north_wind_rad, east_wind_rad) * RAD_TO_DEG
         if phi_w < 0.0:
             phi_w = phi_w + 360.0
 
